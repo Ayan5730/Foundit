@@ -21,6 +21,8 @@ export async function createSharedPreview(photo: File): Promise<File> {
       context.fillRect(0, 0, canvas.width, canvas.height);
       context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
       const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", quality));
+      if (blob && blob.type !== "image/jpeg")
+        throw new Error("This browser could not create a JPG preview. Keep the photo private or try another browser.");
       if (blob && blob.size > 0 && blob.size <= LIMITS.shared_preview_bytes)
         return new File([blob], "item-preview.jpg", { type: "image/jpeg" });
     }
