@@ -240,7 +240,7 @@ function MatchesData({ id }: { id: string }) {
             </>
           ) : source.status === "active" && source.kind === "found" ? (
             <p className="submission-notice">
-              If someone thinks this is their item, share this report page's link
+              If someone thinks this is their item, share the link to this report page
               with them. They can request a private staff check from their lost report.
             </p>
           ) : null}
