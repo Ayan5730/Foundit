@@ -119,6 +119,13 @@ export function RequireSession({
         <p>
           Your reports and private recovery requests are linked to your account.
         </p>
+        {!staff ? (
+          <p>
+            If the missing item was your sign-in device, use another device you
+            can safely sign in on. If that is not possible, visit the help desk;
+            online claims still require sign-in.
+          </p>
+        ) : null}
         <a className="button button-primary" href={signInHref} target="_top">
           Sign in with ChatGPT
         </a>
