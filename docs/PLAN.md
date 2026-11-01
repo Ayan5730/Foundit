@@ -2,6 +2,8 @@
 
 Status (1 November 2026): foundation, contract, backend and connected frontend checkpoints are merged. The complete recovery workflow is verified locally. Release automation adds opt-in provider checks, paired text-normalization evaluation and hosted account/workflow checks. Live providers, hosted multi-account verification, second-device rehearsal, recording and business validation remain release gates. See FRONTEND.md, EVALUATION.md, DEMO.md and RELEASE.md for actual evidence. The original ChatGPT handoff's FastAPI claims do not describe this repository.
 
+Current demo decision: use OpenAI for visible photo attributes and Cerebras for editable text suggestions, subject to live checks and paired evaluation. The no-match browser flow links to Rapid Metro's official lost-and-found page directly. The original Exa proposal below remains documented, while its backend endpoint is unused by the two-provider demo and awaits backend-owner review.
+
 ## Decisions
 - Six-hour build; events/hackathons first; dedicated staff screen.
 - Adarsh: frontend, integration, and publication. Ayan: backend.

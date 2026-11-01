@@ -17,8 +17,8 @@ The first evaluation retains the fixed 24-case offline baseline and adds 12 targ
 
 ## Final owner steps, in order
 
-1. Review the help-desk readiness PR and the separate matching-quality PR, including CI results. Ayan reviews the matching rule's precision/recall tradeoff before it is merged. Keep GitHub and Sites publishing separate.
-2. Add provider keys/model IDs privately, then run the connection check below. Confirm real photo suggestions, structured text normalization and at least one useful official Exa source. Pin model IDs only after the actual account succeeds.
+1. Confirm the two-provider guidance PR is reviewed and merged with passing CI. The help-desk readiness and matching-quality PRs were already merged; keep GitHub and Sites publishing separate.
+2. Add OpenAI and Cerebras keys/model IDs privately, then run the connection check below. Confirm real photo suggestions and structured text normalization. Pin model IDs only after the actual account succeeds. The no-match UI links directly to the official Rapid Metro page.
 3. Reconnect the Sites integration, publish this reviewed commit to the existing owner-private Site and confirm deployment status. Preserve .openai/hosting.json; do not create a replacement Site. Confirm hosted DB/BUCKET, pending migrations and runtime secret revision. Local .dev.vars is not hosted configuration.
 4. Sign in with separate attendee and staff accounts. Read each Site-specific ID from My account details; configure STAFF_USER_IDS server-side. Test the full workflow and changed-ID denials. Include a physical item hand-in and the staff custody checkbox in the rehearsal. Optional API automation is below. Never use local_seedy as a hosted staff ID.
 5. After the private build passes, select the intended demonstration audience. Repeat anonymous/signed-in checks at the final URL from a second device, rehearse the three-minute script in DEMO.md and record a real working backup.
@@ -28,20 +28,20 @@ Live credentials and authenticated hosted sessions are not available to the comp
 
 ## Provider connection and usage checks
 
-Use ignored .dev.vars locally, starting from .dev.vars.example. Configure OPENAI_API_KEY/OPENAI_MODEL, CEREBRAS_API_KEY/CEREBRAS_MODEL and EXA_API_KEY. Then:
+Use ignored .dev.vars locally, starting from .dev.vars.example. Configure OPENAI_API_KEY/OPENAI_MODEL and CEREBRAS_API_KEY/CEREBRAS_MODEL. The two-provider demo does not need EXA_API_KEY. Then:
 
 ```sh
 npm run providers:check -- --live
 npm run evaluate:providers -- --live
 ```
 
-The connection check makes at most three calls using the existing production adapters: OpenAI sees the bundled fictional bag illustration, Cerebras receives a fictional public description, and Exa receives the fixed official-recovery query. A successful schema/connection check does not establish photo extraction accuracy. No model is silently selected for your account.
+The command-line connection check makes at most two calls: OpenAI sees the bundled fictional bag illustration and Cerebras receives a fictional public description. The legacy backend Exa adapter can still be exercised by an explicit test configuration, but it is not part of this demo check. A successful schema/connection check does not establish photo extraction accuracy. No model is silently selected for your account.
 
 The paired evaluation sends only synthetic public item fields to Cerebras, caching repeated input. It uses the same 24 cases and matcher in both arms, preserves identity/event/kind/time/status and applies suggested descriptive fields in the synthetic arm. It makes at most 53 calls, normally fewer because of caching. Failures retain raw fields and are counted; no substitute AI output is invented. This text-only evaluation does not measure OpenAI vision quality. Existing held-out cases have already been inspected and are not a fresh independent benchmark.
 
-JSON reports retain HTTP status, duration and numeric token usage only. Exa cost is recorded only if returned by the provider; other billable costs are not guessed. Keys, prompts, raw provider diagnostics and private evidence are excluded. Review live output before quoting findings in the pitch.
+JSON reports retain HTTP status, duration and numeric token usage only. Billable costs are not guessed. Keys, prompts, raw provider diagnostics and private evidence are excluded. Review live output before quoting findings in the pitch.
 
-Request formats were checked against the official [OpenAI structured output](https://developers.openai.com/api/docs/guides/structured-outputs) and [image input](https://developers.openai.com/api/docs/guides/images-vision), [Cerebras chat completion](https://inference-docs.cerebras.ai/api-reference/chat-completions), and [Exa search](https://exa.ai/docs/reference/search) documentation. Account/model access still requires the live check.
+Request formats were checked against the official [OpenAI structured output](https://developers.openai.com/api/docs/guides/structured-outputs) and [image input](https://developers.openai.com/api/docs/guides/images-vision), and [Cerebras chat completion](https://inference-docs.cerebras.ai/api-reference/chat-completions) documentation. Account/model access still requires the live check. The no-match link targets the [official Rapid Metro page](https://new.delhimetrorail.com/en/rapid-metro); it is a navigation link, not a live inventory search.
 
 ## Optional hosted API verification
 

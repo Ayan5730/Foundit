@@ -31,10 +31,10 @@ Run `npm run dev` and open the printed loopback URL, normally http://127.0.0.1:5
 Examples contain names with empty values only. Use ignored .dev.vars for local Worker secrets, not public prefixes or committed files.
 - OPENAI_API_KEY, OPENAI_MODEL
 - CEREBRAS_API_KEY, CEREBRAS_MODEL
-- EXA_API_KEY
 - STAFF_USER_IDS
 
 Set each model with its key after a connection test confirms account availability. All provider calls are server-side. Blank credentials produce truthful unavailable responses; manual reporting/matching still work.
+The two-provider demo uses OpenAI and Cerebras. Its no-match screen links directly to the official Rapid Metro lost-and-found page without a search API. The backend Exa endpoint remains available for Ayan to review separately, but the demo UI and release checks do not invoke it.
 DB and BUCKET are platform bindings, not string secrets. .env.example is an inventory; it does not automatically configure Worker runtime.
 
 Development simulates ONE loopback user, local_seedy. For an isolated local staff rehearsal, temporarily set STAFF_USER_IDS to that development ID in ignored .dev.vars. Remove that fixture afterward; never configure it on the hosted Site. Other local configuration must be preserved.
