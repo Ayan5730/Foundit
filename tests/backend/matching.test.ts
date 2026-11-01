@@ -34,6 +34,18 @@ test("weaker place/time/color lower scores; impossible timeline is excluded",()=
   assert.ok((scorePair(lost,{...found,color:"red"})?.score??0)<base);
   assert.equal(scorePair(lost,{...found,occurred_at:"2026-10-31T10:00:00+05:30"}),null);
 });
+test("multi-day gaps cannot stay high-confidence appearance matches",()=>{
+  const twoDays={...found,occurred_at:"2026-11-03T11:05:00+05:30"};
+  const fiveDays={...found,occurred_at:"2026-11-06T11:05:00+05:30"};
+  const near=scorePair(lost,found)!;
+  const later=scorePair(lost,twoDays)!;
+  assert.ok(later.score>=55,"a plausible two-day recovery stays available for staff review");
+  assert.ok(later.score<near.score,"a two-day gap must reduce the candidate score");
+  assert.equal(scorePair(lost,{...twoDays,occurred_at:"2026-11-03T05:35:00Z"})?.score,later.score,
+    "equivalent time-zone offsets must produce the same score");
+  assert.equal(later.reasons.find(reason=>reason.factor==="time")?.assessment,"conflicts");
+  assert.equal(scorePair(lost,fiveDays),null,"a five-day gap must not surface as a candidate");
+});
 test("missing appearance clues never manufacture a match; ordering and top-three limit are stable",()=>{
   const generic={...lost,title:"Bag",description:"Bag",color:null,visible_features:[]};
   assert.equal(scorePair(generic,{...generic,id:found.id,kind:"found"}),null);

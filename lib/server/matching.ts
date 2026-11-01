@@ -74,10 +74,12 @@ export function scorePair(source:PublicReport,candidate:PublicReport):Match|null
   const lost=source.kind==="lost"?source:candidate,found=source.kind==="found"?source:candidate;
   const diff=Date.parse(found.occurred_at)-Date.parse(lost.occurred_at);
   if(Number.isFinite(diff)){
-    score+=15*Math.max(0,1-Math.abs(diff)/86400000);
+    // Nearby times add support. Beyond a day, keep the same daily slope as
+    // negative evidence so matching appearance cannot mask a multi-day gap.
+    score+=15*(1-Math.abs(diff)/86400000);
     if(diff < -7200000) score=Math.min(score,40);
     reasons.push({factor:"time",assessment:diff < -7200000 || Math.abs(diff)>=86400000?"conflicts":"supports",
-      text:diff < -7200000?"The found time predates the loss by more than two hours.":Math.abs(diff)>=86400000?"Reported times are at least a day apart.":"Reported times are within a day."});
+      text:diff < -7200000?"The found time predates the loss by more than two hours.":Math.abs(diff)>=86400000?"Reported times are at least a day apart and reduce similarity.":"Reported times are within a day."});
   }else reasons.push({factor:"time",assessment:"unknown",text:"Time information is incomplete."});
   score=Math.max(0,Math.min(100,Math.round(score)));
   // Color, category and a busy event area alone cannot identify an item.

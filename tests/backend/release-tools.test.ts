@@ -50,7 +50,7 @@ test("provider measurements whitelist numeric usage and omit credentials, text a
 });
 
 test("paired evaluation keeps the fixed baseline and never normalizes identity or recovery state", async () => {
-  assert.deepEqual(summarize(baselineRows()), { scenarios: 24, positive_queries: 13, top3_hits: 12, negative_queries: 11, negative_queries_with_suggestions: 1, false_suggestions: 1 });
+  assert.deepEqual(summarize(baselineRows()), { scenarios: 24, positive_queries: 13, top3_hits: 12, negative_queries: 11, negative_queries_with_suggestions: 0, false_suggestions: 0 });
   const report = { ...base, owner_id: "private-owner", evidence: "private-proof" };
   const input = publicNormalizationInput(report);
   assert.equal(input.includes("private"), false);

@@ -1,6 +1,6 @@
 # FoundIt demonstration and completion checklist
 
-The original plan lists seven timed acceptance gates. Five have local evidence (foundation/provider connection, report readback, matching, private claim through handover, and no-match guidance), or about 71% by gate count. Verified hosted publication and a rehearsed, recorded demo remain open. Business validation is a separate open outcome; this percentage is not a measure of real-world recovery performance.
+The original plan lists seven timed acceptance gates. The first five have local evidence (foundation/provider connection, report readback, matching, private claim through handover, and no-match guidance). The sixth, an integrated hosted candidate, now has a public Netlify deployment on commit `e146b7d`; anonymous health and access-denial checks passed. That is six of seven gates with some evidence, or about 86% by gate count. The signed-in hosted recovery flow and the seventh gate, a rehearsed, recorded demo, remain unverified. Business validation is a separate open outcome; this percentage is not a measure of real-world recovery performance.
 
 ## Progress against the agreed plan
 | Outcome | Evidence/current state |
@@ -11,7 +11,7 @@ The original plan lists seven timed acceptance gates. Five have local evidence (
 | Local persistence and recovery | Browser report readback after reload; approval reserves; handover recovers |
 | Partner integrations | OpenAI/Cerebras passed the owner's local synthetic connection check. Cerebras completed 18/18 calls after the Qwen reliability fix; hosted calls and real-photo quality still need verification. The two-provider demo does not use Exa |
 | Labelled evaluation | 24 offline synthetic scenarios and paired Cerebras text evaluation; no measured matching gain, with more false candidate suggestions when AI output was applied automatically. See EVALUATION.md |
-| Hosted candidate | Registered owner-private Site; publication result must be verified separately |
+| Hosted candidate | Public Netlify deployment at `https://foundit-recovery-desk.netlify.app/` matches commit `e146b7d`; anonymous health and private-route denial checks passed. Signed-in attendee and staff flow remains unverified |
 | Distinct users and recording | Pending hosted verification and rehearsal |
 | Customer/business validation | No organizer interview or willingness-to-pay evidence supplied |
 
@@ -42,7 +42,7 @@ Adarsh is handling frontend, backend, integration and publishing. Keep server pe
 ## Judge questions and defensible answers
 - Why two APIs? OpenAI suggests visible image attributes; Cerebras offers optional, editable public-description help and one clarification. Both passed local synthetic connection checks. The paired text evaluation did not improve matching and increased false candidate suggestions when suggestions were automatically applied, so do not claim a retrieval gain. Rapid Metro already publishes its lost-and-found procedure, so this one-operator demo links to the official page directly.
 - Why is this safer than a group chat? Reporter-approved item previews and public details support discovery; the original photo, earlier private clue and staff review support ownership checks. Neither a preview, AI nor a score approves ownership.
-- Accuracy? 12/13 positive synthetic queries appeared in the top three; 3/11 negative queries still produced candidates. Small artificial evaluation, not real recovery accuracy.
+- Accuracy? The deployed `e146b7d` matcher retrieved 12/13 positives in the top three and suggested a candidate for 1/11 negatives in inspected synthetic cases. This proposed, not-yet-deployed time-conflict fix retains 12/13 and reduces the inspected negatives to 0/11. The earlier paired Cerebras evaluation used a prior matcher: automatically applying suggestions left positive retrieval at 12/13 and increased negatives with suggestions from 3/11 to 4/11. These are separate developer-authored runs, not real recovery accuracy or evidence of an AI matching gain.
 - What fails offline? Existing-record workflow works locally; live provider services need connectivity. Manual description remains possible during provider outages.
 - Who pays? Proposed organizer event package; no validated price or willingness to pay yet.
 - What is the differentiation? Event-scoped discovery joined to private verification, reservations and confirmed handover, with an inspectable source-backed next step when no inventory match exists.
@@ -52,6 +52,8 @@ Adarsh is handling frontend, backend, integration and publishing. Keep server pe
 With permission, interview at least one event organizer/help-desk operator. Ask how reports arrive, how long comparisons/reunions take, how wrong claims are handled, staffing burden and whether they would pilot this.
 Record date, role, exact consented feedback, current process and pilot criteria. Do not invent quotations, customers, recoveries or savings.
 Propose a free limited pilot followed by an organizer-paid package; validate buyer, procurement, expected event size and a price range in interviews before putting numbers in the pitch.
+
+**Commercial test, not a validated sale:** The event organizer or help desk is the proposed buyer; attendees use FoundIt free. Offer a one-event pilot using the desk's existing custody log. Compare staff minutes per inquiry and confirmed returns per item physically received with its prior process, while tracking provider, hosting and support cost. Ask the budget owner what improvement and price would justify a purchase.
 
 ## Phone and help-desk procedure
 1. Finder hands the physical item to authorized desk staff. The found report describes where it was discovered; it does not record a storage shelf or prove that the desk received it. Staff keep their own custody log until the product records this directly.
