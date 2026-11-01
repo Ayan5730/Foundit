@@ -1,6 +1,6 @@
 # Frontend integration checkpoint
 
-Status: implemented on integration/complete-demo, continuing the merged shell/form rather than replacing it. Ayan's shared/api.ts contract is consumed unchanged.
+Status: merged in PR #4, continuing the existing shell/form. Ayan's shared/api.ts contract is consumed unchanged. RELEASE.md tracks the remaining live/hosted gates and repeatable verification commands.
 
 ## Connected behavior
 - Server-generated ChatGPT sign-in/out anchors; bootstrap identity, choices, capabilities and account status. Staff screens are hidden from nonstaff; backend permissions remain authoritative.

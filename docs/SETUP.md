@@ -3,8 +3,8 @@
 README.md is preserved. Read AGENTS.md for sole ownership and docs/API.md for the agreed contract.
 
 ## Current implementation
-React/Vinext on Sites, TypeScript API routes, D1 DB, private R2 BUCKET and the supplied ChatGPT identity helpers. Backend checkpoints and initial frontend shell are merged; integration/complete-demo connects the full recovery UI.
-Reports, private intakes/photos, matching, claims, staff review, reservations, handover, rate limits and guidance cache are implemented. See docs/DEMO.md for remaining verification.
+React/Vinext on Sites, TypeScript API routes, D1 DB, private R2 BUCKET and the supplied ChatGPT identity helpers. The backend and connected recovery frontend are merged in main (PRs #3 and #4).
+Reports, private intakes/photos, matching, claims, staff review, reservations, handover, rate limits and guidance cache are implemented. See docs/RELEASE.md for reproducible checks and the final owner handoff; docs/DEMO.md contains the rehearsal script.
 
 ## Local setup
 Node >=22.13.0 (Node 24 works), npm, Git; publication also needs tar.
@@ -13,8 +13,7 @@ git clone https://github.com/adarshyadav428/Foundit.git
 cd Foundit
 npm run install:ci
 npm run typecheck
-npm run test:frontend
-node --experimental-strip-types --test tests/backend/*.test.ts
+npm test
 npm run build
 ```
 For an existing checkout, preserve local changes and use its current branch. Do not reinstall when dependencies and lockfile are unchanged.
@@ -44,12 +43,13 @@ Hosted staff access requires exact Site-specific IDs from authenticated bootstra
 ## Reproducible verification
 ```sh
 npm run typecheck
-npm run test:frontend
-node --experimental-strip-types --test tests/backend/*.test.ts
-node --experimental-strip-types scripts/evaluate-matching.ts
+npm test
+npm run evaluate:matching
 npm run build
 ```
 Matching evaluation is offline, synthetic and read-only; it neither seeds data nor calls providers. See docs/EVALUATION.md.
+GitHub Actions repeats typecheck, tests, the fixed offline evaluation and production build for PRs and main pushes. CI never receives provider keys or test-session cookies.
+`npm run providers:check` and `npm run evaluate:providers` make no external calls by default. Add `-- --live` only after setting local provider configuration. Generated reports stay in ignored outputs/. See RELEASE.md for live and hosted modes.
 The existing tests/backend/smoke-local.ts runner creates labelled fictional records on loopback only and never clears unrelated records. Follow docs/BACKEND.md for its required port/settings. Do not aim it at production.
 
 ## Team and publication

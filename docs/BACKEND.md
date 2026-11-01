@@ -1,6 +1,6 @@
 # Ayan's backend plan
 
-Status: contract checkpoint and subsequent report/intake/matching/claim/review/handover/guidance routes implemented on backend/core. Frontend integration, live providers, and hosted multi-user verification remain pending. Follow AGENTS.md and PLAN.md. Use TypeScript Sites routes, not FastAPI.
+Status: backend and connected frontend checkpoints are merged in main. Live providers and hosted multi-user verification remain pending; RELEASE.md supplies opt-in connection/evaluation/workflow checks. Follow AGENTS.md and PLAN.md. Use TypeScript Sites routes, not FastAPI.
 
 ## First checkpoint
 Read docs/API.md and shared/api.ts for the proposed executable contract; typed JSON examples live in shared/examples.ts. Health and bootstrap are dynamic, no-store routes. Authentication uses the existing Sites helper and an exact server-side staff-ID allowlist. No frontend/hosting/root dependency files are changed.
@@ -29,7 +29,7 @@ app/api, lib/server, db, drizzle, backend tests, shared contract/types/examples,
 7. 5:00-6:00: integration fixes, provider/persistence checks, real staff/attendee authorization tests, rehearsal and actual latency/usage.
 
 ## Runtime
-DB and BUCKET are already declared locally; schema remains empty for your implementation. Read SETUP.md for migrations and local auth limitations.
+DB and BUCKET are declared locally; the eight-table schema and initial migration are implemented. Read SETUP.md for migrations and local auth limitations.
 Keep provider secrets in .dev.vars locally and hosted runtime secrets later. Use only server identity from the supplied helper. Staff IDs are configured separately; sign-in alone is insufficient.
 Bound provider timeouts; preserve partial intake suggestions and manual reporting. Rate-limit provider-backed requests per authenticated user (initial10/minute). Never hardcode successful fallback results.
 
@@ -50,7 +50,7 @@ After setup PR merge, branch backend/core from main. Deliver shared contract/exa
 - All 18 backend tests and 5 existing frontend tests pass. TypeScript and production builds pass. The generated migration was applied once to local D1; SQL-adapter tests load that same migration.
 - Local HTTP smoke passed development sign-in, report create/readback, replay, computed match (sample score 99), R2 upload/read, claim creation, nonstaff review denial, and anonymous media denial.
 - After stopping development and starting the built Worker, the public report still returned200 with private fields absent; bootstrap was anonymous and the owner-only report list returned401.
-- Full staff handover, rejected/competing claims and private cross-user checks pass through the handler/SQL adapter. Hosted multi-user auth and real-provider results have not been verified. The UI is still preview-only; no frontend files were changed.
+- Full staff handover, rejected/competing claims and private cross-user checks pass through the handler/SQL adapter. Hosted multi-user auth and real-provider results have not been verified. At this backend checkpoint the UI was preview-only; frontend integration subsequently merged in PR #4.
 
 ## Reproduce local storage and HTTP checks
 Generate/build schema output first. If this migration is not yet applied to your local database, apply it once:
@@ -66,7 +66,7 @@ node --experimental-strip-types tests/backend/smoke-local.ts
 The runner is restricted to loopback HTTP, uses only the built-in local development identity, creates clearly fictional records, and never deletes existing records. It intentionally does not test authorized staff actions against HTTP; use the backend integration tests for those until distinct hosted accounts are available. It expects no live provider configuration.
 
 ## Integration blockers and publishing-owner handoff
-1. Frontend owner maps local form state to shared CreateReport/CreateClaim schemas, reads bootstrap choices/limits/capabilities, and connects report/intake APIs. Do not infer successful submission from the current preview UI.
+1. Frontend integration is complete in PR #4: shared schemas, bootstrap, report/intake, matching, claims and staff actions are connected. RELEASE.md tracks the remaining hosted/live gates.
 2. Publishing owner configures existing DB/BUCKET bindings, applies migration via Sites publication, and sets server secrets/model IDs and staff-ID allowlist. No root dependency/config changes are required by this backend patch.
 3. Verify provider account/model availability, actual latency/cost, hosted sign-in and isolation with distinct accounts, staff approval/handover, image permissions, and the final public URL before judging. No production-readiness or real-world accuracy claim is established by mocked tests.
 4. All keys remain absent; no real provider calls, Site creation/deployment, or audience changes were performed. Request future root-script/dependency/hosting changes from Adarsh.

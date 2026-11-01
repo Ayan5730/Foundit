@@ -4,14 +4,16 @@
 | Outcome | Evidence/current state |
 |---|---|
 | Shared foundation and contract | Merged; typed schemas/examples and health/bootstrap exist |
-| Backend recovery workflow | 16 API method/path combinations; 18 tests passing |
-| Connected frontend | Integration branch; real forms, matching, tickets, staff actions and guidance states |
+| Backend recovery workflow | 16 API method/path combinations; 18 workflow/provider tests plus 5 release-tool tests passing |
+| Connected frontend | Merged in PR #4; real forms, matching, tickets, staff actions and guidance states |
 | Local persistence and recovery | Browser report readback after reload; approval reserves; handover recovers |
 | Partner integrations | Adapters and mocked/failure tests exist; live credentials/configuration still needed |
 | Labelled evaluation | 24 offline synthetic scenarios; limitations disclosed in EVALUATION.md |
 | Hosted candidate | Registered owner-private Site; publication result must be verified separately |
 | Distinct users, live sources, recording | Pending hosted verification and rehearsal |
 | Customer/business validation | No organizer interview or willingness-to-pay evidence supplied |
+
+Follow RELEASE.md for the remaining owner steps and exact commands. Live checks and synthetic paired evaluation are ready to run after credentials are configured; their presence is not evidence of a successful live call.
 
 ## Two owners, no overlapping edits
 Adarsh: frontend/integration/publishing, secure hosted configuration, responsive and second-device checks, recording/pitch, organizer interviews.

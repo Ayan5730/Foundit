@@ -1,6 +1,6 @@
 # FoundIt agreed build plan
 
-Status (1 November 2026): foundation, contract and backend checkpoints are merged. The integration branch connects the complete frontend recovery workflow, verified locally. Live providers, hosted multi-account verification, second-device rehearsal, recording and business validation remain release gates. See FRONTEND.md, EVALUATION.md and DEMO.md for actual evidence. The original ChatGPT handoff's FastAPI claims do not describe this repository.
+Status (1 November 2026): foundation, contract, backend and connected frontend checkpoints are merged. The complete recovery workflow is verified locally. Release automation adds opt-in provider checks, paired text-normalization evaluation and hosted account/workflow checks. Live providers, hosted multi-account verification, second-device rehearsal, recording and business validation remain release gates. See FRONTEND.md, EVALUATION.md, DEMO.md and RELEASE.md for actual evidence. The original ChatGPT handoff's FastAPI claims do not describe this repository.
 
 ## Decisions
 - Six-hour build; events/hackathons first; dedicated staff screen.
