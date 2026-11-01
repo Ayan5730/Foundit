@@ -11,6 +11,17 @@ test("synonym matching computes score independent of report ordering",()=>{
   assert.equal(scorePair(lost,found)?.score,scorePair(found,lost)?.score);
   assert.ok((scorePair(lost,found)?.score??0)>=80);
 });
+test("Apple laptop and MacBook wording can suggest a staff-reviewed candidate",()=>{
+  const lostLaptop:PublicReport={...lost,id:"lost-laptop",kind:"lost",category:"Electronics",title:"macbook m1 silver",color:"silver",
+    description:"13.6 inches, landscape wallpaper",visible_features:[],location:"Main Hall",occurred_at:"2026-11-01T16:53:00+05:30"};
+  const foundLaptop:PublicReport={...lostLaptop,id:"found-laptop",kind:"found",title:"Apple Laptop",
+    description:"small laptop, good laptop",occurred_at:"2026-11-01T16:25:00+05:30"};
+  const candidate=scorePair(lostLaptop,foundLaptop);
+  assert.ok(candidate,"a shared Apple/MacBook brand, color, area and nearby times should surface a candidate");
+  assert.ok(candidate.score>=55);
+  assert.equal(scorePair(foundLaptop,lostLaptop)?.score,candidate.score);
+  assert.equal(scorePair(lostLaptop,{...foundLaptop,color:"black"}),null,"a known conflicting color still excludes the pair");
+});
 test("unrelated, recovered, reserved, same-kind and cross-event candidates are excluded",()=>{
   for(const change of [{category:"Drinkware"},{status:"recovered"},{status:"reserved"},{kind:"lost"},{event_id:"other-event"}] as Partial<PublicReport>[]){
     assert.equal(scorePair(lost,{...found,...change}),null);

@@ -14,7 +14,8 @@ export function canonicalColor(value:string|null):string|null {
 function featureEvidence(report:Pick<PublicReport,"title"|"description"|"visible_features">):{positive:Set<string>;negative:Set<string>} {
   const positive=new Set<string>(),negative=new Set<string>();
   for(const field of [report.title,report.description,...report.visible_features]){
-    const text=field.toLowerCase().replace(/\bmetallic\b/g,"silver")
+    const text=field.toLowerCase().replace(/\bmac\s?books?\b/g,"apple laptop")
+      .replace(/\bmetallic\b/g,"silver")
       .replace(/\b(?:zippered|zippers?|zips?)\b/g,"zipper");
     for(const clause of text.split(/[.,;!?\n]|\bbut\b/)){
       let negated=false;
@@ -66,7 +67,7 @@ export function scorePair(source:PublicReport,candidate:PublicReport):Match|null
   const overlap=[...a].filter(word=>b.has(word)).length;
   const similarity=a.size && b.size ? overlap/new Set([...a,...b]).size : 0;
   score+=25*similarity;
-  reasons.push({factor:"features",assessment:similarity>0?"supports":"unknown",text:similarity>0?"Descriptions share normalized visible details.":"No shared visible details were identified."});
+  reasons.push({factor:"features",assessment:similarity>0?"supports":"unknown",text:similarity>0?"Reports share normalized public item details.":"No shared public item details were identified."});
   if(source.location==="Other" || candidate.location==="Other")reasons.push({factor:"location",assessment:"unknown",text:"A specific event area is missing."});
   else if(source.location===candidate.location){score+=20;reasons.push({factor:"location",assessment:"supports",text:"Both reports name the same event area."});}
   else reasons.push({factor:"location",assessment:"conflicts",text:"Different event areas were reported."});
