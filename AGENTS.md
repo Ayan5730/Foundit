@@ -1,6 +1,6 @@
 # FoundIt working agreement
 
-Read docs/SETUP.md and docs/PLAN.md before implementation. This setup is the shared foundation only. Product features, executable API contracts, provider calls, tables, and authorization rules are not implemented yet.
+Read docs/SETUP.md and docs/PLAN.md before implementation. The foundation and backend checkpoints are merged; the integration branch connects the frontend to the agreed contract. See docs/FRONTEND.md and docs/DEMO.md for verified scope and remaining gates.
 
 ## Architecture
 React/Vinext on Sites; TypeScript server routes; D1 (DB); R2 (BUCKET); supplied ChatGPT sign-in helpers. The earlier Python/FastAPI proposal is superseded. Preserve the Sites runtime and build integration.
@@ -9,6 +9,7 @@ React/Vinext on Sites; TypeScript server routes; D1 (DB); R2 (BUCKET); supplied 
 - Adarsh (frontend): app pages/layouts/styles EXCEPT app/api/** and app/chatgpt-auth.ts; components/**; hooks/**; public/**; lib/client/**; lib/utils.ts; tests/frontend/**; docs/FRONTEND.md; pitch/demo materials.
 - Ayan (backend): app/api/**; lib/server/**; db/**; drizzle/**; tests/backend/**; docs/BACKEND.md; docs/API.md; shared/** (future API contract/types/examples).
 - Adarsh (integration/publishing): all root manifests/configs/lockfiles; .openai/**; .github/**; scripts/**; worker/**; vendor/**; docs/SETUP.md; docs/PLAN.md; docs/SITES-STARTER.md; AGENTS.md.
+- Adarsh (demo/evaluation documentation): docs/DEMO.md, docs/EVALUATION.md and scripts/evaluate-matching.ts. Evaluation runs server matching offline; client code still never imports server modules.
 - Preserve supplied app/chatgpt-auth.ts and lib/connector* infrastructure unless a specific change is coordinated with Adarsh.
 - Preserve the original README.md unless the repository owner explicitly requests changes.
 - Assign an owner before adding paths outside these areas. Frontend imports shared types, never server/database modules into client code.

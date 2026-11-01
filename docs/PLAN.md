@@ -1,6 +1,6 @@
 # FoundIt agreed build plan
 
-Status: approved future scope, not implemented functionality. This foundation PR only prepares the shared project. The original ChatGPT handoff's claimed FastAPI implementation/test results were not verified and are not applicable to this new repository.
+Status (1 November 2026): foundation, contract and backend checkpoints are merged. The integration branch connects the complete frontend recovery workflow, verified locally. Live providers, hosted multi-account verification, second-device rehearsal, recording and business validation remain release gates. See FRONTEND.md, EVALUATION.md and DEMO.md for actual evidence. The original ChatGPT handoff's FastAPI claims do not describe this repository.
 
 ## Decisions
 - Six-hour build; events/hackathons first; dedicated staff screen.
