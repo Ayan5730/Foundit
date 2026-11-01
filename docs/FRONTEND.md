@@ -1,48 +1,32 @@
-# Adarsh's frontend plan
+# Frontend integration checkpoint
 
-Status: first frontend checkpoint implemented on frontend/core. Follow AGENTS.md and PLAN.md. Later integration work below remains planned.
+Status: implemented on integration/complete-demo, continuing the merged shell/form rather than replacing it. Ayan's shared/api.ts contract is consumed unchanged.
 
-## Checkpoint delivered
-- Shared header/footer, design tokens, event-help-desk home, and separate lost/found routes using the existing shared form.
-- Required-field and calendar-date validation, optional color, found-only private identifying clue, photo MIME/size checks and corrupt-image feedback.
-- In-memory photo preview with replacement/removal cleanup and object-URL revocation on unmount.
-- Error-summary/review focus, input labels and associated hints/errors, skip link, focus styles, reduced-motion handling, and responsive layouts.
-- Review/edit preserves the draft; the review summary does not repeat the private clue. Submission stays disabled and visibly unavailable.
-- No API requests, uploads, persistence, sample matches, browser-stored evidence, or fake success state. lib/client/report-draft.ts describes local UI state only, not an API contract.
-- Normal anchor navigation deliberately avoids the observed Vinext production next/link prefetch/navigation failure. Do not restore client routing until it is verified against the built Worker.
+## Connected behavior
+- Server-generated ChatGPT sign-in/out anchors; bootstrap identity, choices, capabilities and account status. Staff screens are hidden from nonstaff; backend permissions remain authoritative.
+- Existing lost/found form now uploads optional private photos, requests explicit editable AI suggestions, maps confirmed fields to the shared schema, submits and reads back actual reports.
+- Event date entry explicitly uses IST independent of browser timezone. Lost reports always send private_clue:null.
+- Stable client request IDs survive identical retries within the page. Drafts/evidence remain in memory only; leaving/reloading clears an unsaved draft. No fake success, browser role headers, localStorage or provider keys.
+- My reports/recovery requests; real top-three candidates and supporting/conflicting/unknown reasons; private claim submission; claimant ticket/status.
+- Protected staff queue, private clue/evidence/photo comparison, explicit approve/reject confirmation and separate confirmed handover. Counts refresh after changes.
+- No-match lost reports can explicitly request official recovery guidance. Available, no_sources and unavailable states use the backend response.
+- Request cancellation, bounded timeouts, field errors, retry controls, empty states and sign-in gates. Original photo object URLs are revoked on replacement/removal/unmount.
+- The agreed intake endpoint also runs configured providers when a photo is submitted. The upload hint/review explicitly disclose that processing; private ownership clues are excluded and suggestions never overwrite submitted fields. Photo-free manual submission makes no intake/provider call unless assistance was explicitly requested.
 
-## Verification for this checkpoint
-Passed npm run typecheck, npm run test:frontend (5 tests), and npm run build. Tests cover lost/found requirements, invalid choices/limits, impossible dates/leap days, and file MIME/size limits.
-The initial build was blocked by a running preview holding dist open on Windows; after stopping that preview the production build passed. The starter still emits its route-classification/performance notices.
-Browser checks against npm start: home-to-form and lost/found navigation, error focus, valid review focus, edit preservation, private-clue validation/exclusion from review, disabled submission, and photo selection/replacement/removal/corrupt-image rejection passed.
-Native datetime entry was verified through accessibility controls; the browser automation fill method did not reliably populate datetime-local.
-Responsive checks at measured CSS widths 325 and 1200 found no horizontal overflow on home; the form also fit the narrow viewport. Screenshots were inspected.
-The source is valid UTF-8; apparent curly-apostrophe/ellipsis encoding issues were not present in the actual file.
+## Verification on 1 November 2026
+- Typecheck, production build, 9 frontend tests and 18 backend tests passed before final publication checks.
+- Local browser: sign-in, create lost report, reload/readback, actual 91/100 candidate, private claim, staff comparison and private photo, approval/reserved state, separate handover/recovered ticket passed.
+- Found form: fictional photo upload, honest AI-unavailable result, retained draft, manual submission, public readback without private clue and genuine no-match state passed.
+- Guidance-unavailable state passed with credentials absent. No sample source cards or synthetic AI responses are substituted.
+- Earlier checkpoint verified error/review focus, edit preservation, photo replacement/removal/corrupt-file rejection and keyboard/native datetime controls.
+- Development hot reload briefly produced a stale context error while modules were being formatted; full reload restored the provider. Final build/hosted checks determine release behavior.
+- Final built Worker: home-to-form navigation and anonymous sign-in gate passed with no captured browser errors. Bootstrap remained anonymous/nonstaff, owner records returned 401, and the recovered report persisted across the development-to-production restart without private fields.
+- Integrated workspace at a measured 390 CSS-pixel viewport had no horizontal overflow; screenshot inspected.
+- Hosted distinct-account authorization, live partner outputs, second-device testing and recording remain separate release gates; local mock identity does not establish these.
 
-## Integration pending
-Ayan's shared contract and API routes are not in this checkout or origin/main at review time. No backend files, auth helper, connector infrastructure, README, storage schema, or Site configuration are changed by this checkpoint.
-Next: agree on executable report/intake/bootstrap types and examples, replace local form choices with bootstrap values, add authorized submission and field-error mapping, and verify report readback after refresh. Wire shapes and authentication behavior must come from the backend contract.
-AI assistance, matching, claim/staff screens, persistence, hosted multi-user access, and deployment remain unimplemented/unverified. No Site registration, deployment, or audience change was performed.
-
-## Ownership
-Pages/layout/styles, components, hooks, public assets, browser API client, frontend tests. Also root configuration/lockfile and publishing. Do not implement matching, provider calls, database access or permissions in browser code. Consume Ayan's shared contract after the first checkpoint.
+## Ownership and constraints
+Frontend pages/components/styles/client helpers and integration/publishing files only. No backend/shared-contract changes in this integration checkpoint. README.md, app/chatgpt-auth.ts and connector infrastructure remain preserved.
+Use ordinary anchors: the initial frontend checkpoint observed a Vinext production prefetch/navigation failure with next/link.
 
 ## Design
-Modern event help desk: white #FFFFFF, background #F3F6FA, blue #2457D6, text #172238, success #16734A, attention #9A6200. Public Sans with system fallback; bundle if available, no runtime font dependency.
-Left-aligned, visible labels, clear focus, restrained borders. Claim ticket and recovery timeline provide the visual identity. Show supporting/conflicting/unknown evidence beside the score.
-Screens: home, combined lost/found form, my reports, matches/comparison, claim status, recovery guidance, staff queue/detail. Combine views where practical.
-
-## Sequence
-1. 0:00-0:30: shared starter, contract agreement, app shell, consistent controls, preserved Sites sign-in integration, later authorized hosted shell.
-2. 0:30-1:30: form/photo preview/validation, API client/errors, top-level sign-in navigation, persistence/readback. Preserve values on failed requests.
-3. 1:30-2:30: explicit AI-assist button, editable suggestions, at most one clarification, three candidate cards and actual supporting/conflicting/unknown reasons. Honest empty state.
-4. 2:30-3:30: private evidence form, claim ticket/timeline, staff queue and protected comparison, confirmed approve/reject, separate handover action.
-5. 3:30-4:15: official-source cards with title/domain/passage/retrieval time; guidance not inventory, explicit unavailable/no-source states.
-6. 4:15-5:00: mobile/desktop, keyboard/focus, direct links/reloads, errors/expired identity, remove fixtures from live path, publish integrated candidate when authorized.
-7. 5:00-6:00: defect fixes only, second-device URL check, actual screenshots/results and three-minute rehearsal.
-
-## Acceptance
-All scores/statuses server-derived. Loading/empty/error/forbidden views work. AI suggestions editable before save. Retries preserve work without duplicates. Public views never fetch staff data. No private evidence in localStorage/logs, no keys in bundles. Refresh and full recovery journey work.
-
-## First next task
-From merged foundation create frontend/core. Build shell/form; use agreed contract examples and clearly labelled temporary fixtures only until endpoints exist. Submit PR checkpoint and list missing API behavior. Do not edit backend paths to bypass integration blockers.
+Preserve the established white/blue event help desk and claim-ticket timeline. Visible labels, skip link, focus styles, reduced motion, error messages, public/private separation and responsive comparison layouts take priority over decorative work.

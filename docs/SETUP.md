@@ -1,59 +1,58 @@
-# FoundIt local setup
+# FoundIt setup and integration
 
-The original README is preserved. Start here for development.
+README.md is preserved. Read AGENTS.md for sole ownership and docs/API.md for the agreed contract.
 
-## Current state
-The Sites Vinext starter includes React, TypeScript route support, D1/R2 binding declarations, Drizzle tooling, a ChatGPT sign-in helper, and a placeholder page.
-There are no FoundIt API routes, report tables, matching/provider integrations, claim screens, or deployment yet. The schema is empty. No hosted Site ID is fabricated or provisioned.
+## Current implementation
+React/Vinext on Sites, TypeScript API routes, D1 DB, private R2 BUCKET and the supplied ChatGPT identity helpers. Backend checkpoints and initial frontend shell are merged; integration/complete-demo connects the full recovery UI.
+Reports, private intakes/photos, matching, claims, staff review, reservations, handover, rate limits and guidance cache are implemented. See docs/DEMO.md for remaining verification.
 
-## Prerequisites
-Node.js >=22.13.0 (Node 24 works), npm, and Git. Later publishing also needs tar (Windows tar.exe is supported). Provider keys are not needed for foundation verification.
-
-## Clone and run after the setup PR is merged
+## Local setup
+Node >=22.13.0 (Node 24 works), npm, Git; publication also needs tar.
 ```sh
 git clone https://github.com/adarshyadav428/Foundit.git
 cd Foundit
 npm run install:ci
 npm run typecheck
+npm run test:frontend
+node --experimental-strip-types --test tests/backend/*.test.ts
 npm run build
-npm run dev
 ```
-Open the printed local URL (normally http://localhost:5173); stop with Ctrl+C. install:ci performs one locked npm ci. Scripts are checked in: Ayan does not need the Sites plugin to develop locally. Clean clones default to portable mode.
+For an existing checkout, preserve local changes and use its current branch. Do not reinstall when dependencies and lockfile are unchanged.
 
-Create frontend/core (Adarsh) or backend/core (Ayan) from updated main. The setup branch is not a feature branch.
-
-## Environment
-Both example files contain names with empty values only. For Worker runtime secrets, copy .dev.vars.example to ignored .dev.vars. .env.example is an inventory for dotenv-compatible tooling, not automatic Worker configuration. Avoid duplicating secrets across files.
-Do not expose keys with NEXT_PUBLIC_ or VITE_ prefixes. Leave values blank until integrations need them. Hosted secrets are configured separately through Sites during later publication.
-
-## Database and images
-.openai/hosting.json declares logical bindings DB and BUCKET. These are not live resource IDs. Miniflare supplies local bindings; Sites provisions hosted resources during publication.
-Ayan owns db/schema.ts and drizzle/. Add real tables, run npm run db:generate, inspect and commit SQL/metadata. Do not create demonstration tables simply for setup.
-After a build emits dist/server/wrangler.json, apply each actual pending local migration exactly once:
-
+Apply the initial migration ONCE to a new local database after building:
 ```sh
-node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/<pending-migration>.sql
+node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0000_gray_speedball.sql
 ```
-Replace the filename. Local and hosted data are separate. Do not replay applied migrations or change their history. Hosted publishing applies pending schema migrations; seeding is separate.
+Do not replay applied migrations. Later migrations must retain their history. Local and hosted data are separate; Sites publication applies pending hosted schema migrations. Demo data never belongs in migrations.
 
-Non-mutating local D1 binding check:
+Run `npm run dev` and open the printed loopback URL, normally http://127.0.0.1:5173. Stop with Ctrl+C before building on Windows to avoid locked dist files.
+`npm start` serves the built Worker locally using the same .wrangler/state; it does not deploy and does not simulate sign-in.
+
+## Runtime configuration names
+Examples contain names with empty values only. Use ignored .dev.vars for local Worker secrets, not public prefixes or committed files.
+- OPENAI_API_KEY, OPENAI_MODEL
+- CEREBRAS_API_KEY, CEREBRAS_MODEL
+- EXA_API_KEY
+- STAFF_USER_IDS
+
+Set each model with its key after a connection test confirms account availability. All provider calls are server-side. Blank credentials produce truthful unavailable responses; manual reporting/matching still work.
+DB and BUCKET are platform bindings, not string secrets. .env.example is an inventory; it does not automatically configure Worker runtime.
+
+Development simulates ONE loopback user, local_seedy. For an isolated local staff rehearsal, temporarily set STAFF_USER_IDS to that development ID in ignored .dev.vars. Remove that fixture afterward; never configure it on the hosted Site. Other local configuration must be preserved.
+Hosted staff access requires exact Site-specific IDs from authenticated bootstrap/My account details. Account UUIDs from unrelated tools are not interchangeable with those IDs. Sign-in alone grants no staff role.
+
+## Reproducible verification
 ```sh
-node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --command "SELECT 1 AS ok"
+npm run typecheck
+npm run test:frontend
+node --experimental-strip-types --test tests/backend/*.test.ts
+node --experimental-strip-types scripts/evaluate-matching.ts
+npm run build
 ```
+Matching evaluation is offline, synthetic and read-only; it neither seeds data nor calls providers. See docs/EVALUATION.md.
+The existing tests/backend/smoke-local.ts runner creates labelled fictional records on loopback only and never clears unrelated records. Follow docs/BACKEND.md for its required port/settings. Do not aim it at production.
 
-npm start serves the built Worker locally on loopback with the same local D1/R2 state. It does not deploy.
-
-## Authentication
-Keep app/chatgpt-auth.ts and dispatch-owned auth routes intact. Portable npm run dev simulates loopback sign-in at /signin-with-chatgpt?return_to=/ with the single identity local_seedy. This is not hosted account verification or multi-user testing.
-npm start does not simulate sign-in; production excludes mock auth. Ayan will authorize server identity and STAFF_USER_IDS. Sign-in alone never grants staff status. Browser code must not invent identity/role headers.
-
-## Team checkpoints
-Read AGENTS.md for path ownership.
-1. Ayan defines the shared contract/examples and health/bootstrap.
-2. Adarsh builds shell/report form against that contract.
-3. Both submit one report, refresh, and read it back before expanding scope.
-
-## Verification and publishing handoff
-Run npm run typecheck and npm run build. Product tests arrive with features; there is no dummy passing suite.
-A GitHub PR is not a Sites deployment. After review, Adarsh registers a Site, saves its returned project_id, configures secrets, and follows the Sites packaging/publication workflow from the reviewed integration commit. Keep GitHub and Sites publishing remotes separate. Never share publishing credentials in Git.
-Do not deploy or enable public access for this setup PR. See SITES-STARTER.md for upstream instructions and PLAN.md for agreed future work.
+## Team and publication
+Ayan owns backend/schema/shared contract; Adarsh owns frontend, root configuration, integration and publication. Use PR review; do not merge another owner's work or main automatically.
+.openai/hosting.json persists the one registered FoundIt Site identity and DB/BUCKET binding names. GitHub origin remains the team repository; Sites source synchronization uses its separate short-lived credential through stdin, never Git configuration or files.
+Publishing uses the exact pushed source commit and its build archive. Verify private deployment first; public audience changes need the owner's explicit request. Configure hosted runtime secrets separately, deploy their revision, and test distinct staff/attendee accounts before judging.
