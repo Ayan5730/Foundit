@@ -1,6 +1,20 @@
 # Ayan's backend plan
 
-Status: future work. Follow AGENTS.md and PLAN.md. Use TypeScript Sites routes, not FastAPI.
+Status: first contract/health/bootstrap checkpoint implemented. Follow AGENTS.md and PLAN.md. Use TypeScript Sites routes, not FastAPI. Subsequent sequence below remains planned.
+
+## First checkpoint
+Read docs/API.md and shared/api.ts for the proposed executable contract; typed JSON examples live in shared/examples.ts. Health and bootstrap are dynamic, no-store routes. Authentication uses the existing Sites helper and an exact server-side staff-ID allowlist. No frontend/hosting/root dependency files are changed.
+
+## Environment names (server-only)
+OPENAI_API_KEY and OPENAI_MODEL: vision-capable Responses model, set together.
+CEREBRAS_API_KEY and CEREBRAS_MODEL: structured-output chat model, set together.
+EXA_API_KEY: official-source recovery guidance.
+STAFF_USER_IDS: comma-separated exact Sites user IDs; unset grants no staff role.
+DB and BUCKET are existing platform bindings, not string environment secrets.
+Use the ignored .dev.vars file locally; configure hosted secrets through the publishing owner later. Do not send keys in chats, commit them, or use public environment prefixes. The user requested mocked verification; live provider calls are not authorized for this run.
+
+## Backend verification command
+Use node --experimental-strip-types --test tests/backend/*.test.ts with Node >=22.13.0; no root package edits/dependencies are needed. Also run npm run typecheck and npm run build. Hosted identity/header integrity must be verified on Sites later; local mocks are not production proof.
 
 ## Ownership
 app/api, lib/server, db, drizzle, backend tests, shared contract/types/examples, API documentation. Request root dependency/config/hosting changes from Adarsh. No frontend edits.
