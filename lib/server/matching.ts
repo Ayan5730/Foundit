@@ -14,9 +14,29 @@ export function featureTokens(report:Pick<PublicReport,"title"|"description"|"vi
     .replace(/metallic/g,"silver").replace(/\b(?:zippered|zippers?|zips?)\b/g,"zipper");
   return new Set((text.match(/[a-z0-9]+/g)??[]).filter(word=>!stop.has(word)));
 }
+// A broad category such as Electronics can contain unrelated objects. Only use
+// an explicit, unambiguous item type from each title to rule out a candidate;
+// generic or mixed titles keep the existing similarity calculation.
+const electronicTypes = [
+  /\b(?:smartphones?|iphones?|cellphones?|cell phones?|mobile phones?|phones?)\b/i,
+  /\b(?:headphones?|headsets?|earbuds?|earphones?|airpods?|air pods)\b/i,
+  /\b(?:laptops?|macbooks?|chromebooks?|notebook computers?)\b/i,
+  /\b(?:tablets?|ipads?)\b/i,
+  /\b(?:cameras?|dslrs?)\b/i,
+  /\b(?:smartwatches?|watches?)\b/i,
+  /\b(?:chargers?|power ?banks?)\b/i,
+] as const;
+function explicitElectronicType(title:string):number|null {
+  const matches=electronicTypes.flatMap((pattern,index)=>pattern.test(title)?[index]:[]);
+  return matches.length===1?matches[0]:null;
+}
 export function scorePair(source:PublicReport,candidate:PublicReport):Match|null {
   if(source.id===candidate.id || source.kind===candidate.kind || source.category!==candidate.category ||
     source.event_id!==candidate.event_id || source.status!=="active" || candidate.status!=="active")return null;
+  if(source.category==="Electronics"){
+    const sourceType=explicitElectronicType(source.title),candidateType=explicitElectronicType(candidate.title);
+    if(sourceType!==null && candidateType!==null && sourceType!==candidateType)return null;
+  }
   const reasons:MatchReason[]=[{factor:"category",assessment:"supports",text:"Same item category."}];
   let score=25;
   const left=canonicalColor(source.color),right=canonicalColor(candidate.color);
