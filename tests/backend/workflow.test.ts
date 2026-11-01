@@ -41,6 +41,21 @@ test("report -> matching -> private claim -> staff review -> handover; retries a
     assert.equal((await store.one<{count:number}>("SELECT COUNT(*) AS count FROM reservations"))?.count,0);
   }finally{db.close();}
 });
+test("an owner can request staff review from a shared found-report link when ranking has no candidate",async()=>{
+  const {db,d1}=database(),store=new Store(d1);
+  try{
+    const lost=await createReport(store,owner,{...lostReportRequest,client_request_id:crypto.randomUUID(),
+      category:"Electronics",title:"Laptop",color:null,description:"Laptop",visible_features:[]});
+    const found=await createReport(store,finder,{...foundReportRequest,client_request_id:crypto.randomUUID(),
+      category:"Electronics",title:"Laptop",color:null,description:"Laptop",visible_features:[]});
+    assert.equal(rankMatches(lost.report,[found.report]).candidates.length,0);
+    const claim=await createClaim(store,owner,{client_request_id:crypto.randomUUID(),
+      lost_report_id:lost.report.id,found_report_id:found.report.id,evidence:"Fictional private identifier"});
+    assert.equal(claim.claim.status,"pending");
+    await assert.rejects(createClaim(store,finder,{client_request_id:crypto.randomUUID(),
+      lost_report_id:lost.report.id,found_report_id:found.report.id,evidence:"Fictional evidence"}),{status:404});
+  }finally{db.close();}
+});
 test("competing approval batches cannot reserve the same found item; rejected claims cannot recover",async()=>{
   const {db,d1}=database(),store=new Store(d1);
   try{

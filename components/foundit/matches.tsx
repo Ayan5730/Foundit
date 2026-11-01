@@ -2,7 +2,8 @@
 import { useRef, useState, type FormEvent } from "react";
 import type { PublicReport, Matches, Claim, CreateClaim } from "@/shared/api";
 import { useResource } from "@/lib/client/use-resource";
-import { post, message, requestIdentity } from "@/lib/client/api";
+import { api, post, message, requestIdentity } from "@/lib/client/api";
+import { reportIdFromReference } from "@/lib/client/report-reference";
 import { RequireSession } from "./session";
 import { ReportSummary } from "./report-summary";
 import { ErrorState, EmptyState } from "./workspace";
@@ -38,6 +39,10 @@ function MatchesData({ id }: { id: string }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [hidingPreview, setHidingPreview] = useState(false);
   const [previewError, setPreviewError] = useState("");
+  const [manualReference, setManualReference] = useState("");
+  const [manualCandidate, setManualCandidate] = useState<PublicReport | null>(null);
+  const [manualBusy, setManualBusy] = useState(false);
+  const [manualError, setManualError] = useState("");
   const retry = () => {
     report.refresh();
     matches.refresh();
@@ -56,6 +61,30 @@ function MatchesData({ id }: { id: string }) {
     candidate =
       candidates.find((item) => item.candidate.id === selected) ??
       candidates[0];
+  async function checkFoundReport(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setManualCandidate(null);
+    const foundId = reportIdFromReference(manualReference, window.location.origin);
+    if (!foundId || foundId === source.id) {
+      setManualError("Paste the link or ID from the finder's FoundIt report page.");
+      return;
+    }
+    setManualBusy(true);
+    setManualError("");
+    try {
+      const foundReport = await api<PublicReport>("/reports/" + encodeURIComponent(foundId));
+      if (foundReport.kind !== "found" || foundReport.status !== "active" ||
+          foundReport.category !== source.category || foundReport.event_id !== source.event_id) {
+        setManualError("This is not an active found report in the same event and category.");
+        return;
+      }
+      setManualCandidate(foundReport);
+    } catch (reason) {
+      setManualError(message(reason));
+    } finally {
+      setManualBusy(false);
+    }
+  }
   async function hidePreview() {
     setHidingPreview(true);
     setPreviewError("");
@@ -169,6 +198,52 @@ function MatchesData({ id }: { id: string }) {
                 : "Reserved and recovered reports are excluded from matching."
             }
           />
+          {source.status === "active" && source.kind === "lost" ? (
+            <>
+              <section className="claim-request" aria-labelledby="manual-check-title">
+                <h2 id="manual-check-title">Have the found report link?</h2>
+                <p>
+                  Automatic matching can miss a lead. Ask the finder to share the
+                  address of their FoundIt report, then request a private staff check.
+                </p>
+                <form onSubmit={checkFoundReport}>
+                  <div className="field">
+                    <label htmlFor="found-report-reference">Found report link or ID</label>
+                    <input
+                      id="found-report-reference"
+                      value={manualReference}
+                      onChange={(event) => {
+                        setManualReference(event.target.value);
+                        setManualCandidate(null);
+                        setManualError("");
+                      }}
+                      placeholder="Paste the link from the finder's report page"
+                      required
+                    />
+                  </div>
+                  <button className="button button-secondary" disabled={manualBusy}>
+                    {manualBusy ? "Checking report..." : "Check found report"}
+                  </button>
+                </form>
+                {manualError ? <p className="field-error" role="alert">{manualError}</p> : null}
+              </section>
+              {manualCandidate ? (
+                <>
+                  <ReportSummary report={manualCandidate} label="Found report to check" />
+                  <p className="submission-notice">
+                    This is a lead, not an automatic match or proof of ownership.
+                    Staff will compare private details before approving a handover.
+                  </p>
+                  <ClaimRequest lostId={source.id} foundId={manualCandidate.id} />
+                </>
+              ) : null}
+            </>
+          ) : source.status === "active" && source.kind === "found" ? (
+            <p className="submission-notice">
+              If someone thinks this is their item, share this report page's link
+              with them. They can request a private staff check from their lost report.
+            </p>
+          ) : null}
           {source.status === "active" && source.kind === "lost" ? (
             <RecoveryGuidance />
           ) : null}

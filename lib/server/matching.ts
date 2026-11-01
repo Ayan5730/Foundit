@@ -14,7 +14,8 @@ export function canonicalColor(value:string|null):string|null {
 function featureEvidence(report:Pick<PublicReport,"title"|"description"|"visible_features">):{positive:Set<string>;negative:Set<string>} {
   const positive=new Set<string>(),negative=new Set<string>();
   for(const field of [report.title,report.description,...report.visible_features]){
-    const text=field.toLowerCase().replace(/\bmetallic\b/g,"silver")
+    const text=field.toLowerCase().replace(/\bmac\s?books?\b/g,"apple laptop")
+      .replace(/\bmetallic\b/g,"silver")
       .replace(/\b(?:zippered|zippers?|zips?)\b/g,"zipper");
     for(const clause of text.split(/[.,;!?\n]|\bbut\b/)){
       let negated=false;
