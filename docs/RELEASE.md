@@ -1,6 +1,6 @@
 # Release verification and final owner handoff
 
-Owner: Adarsh (integration/publishing), with Ayan responsible for backend/provider configuration and any agreed scoring changes. The completion branch does not change the API contract, matcher weights, database migration, supplied authentication helper or connector infrastructure.
+Current owner: Adarsh handles frontend, backend, integration and publishing. This reliability fix does not change the API contract, matcher weights, database migration, supplied authentication helper or connector infrastructure.
 
 ## Checks that require no accounts or provider keys
 
@@ -17,14 +17,14 @@ The first evaluation retains the fixed 24-case offline baseline and adds 12 targ
 
 ## Final owner steps, in order
 
-1. Confirm the two-provider guidance PR is reviewed and merged with passing CI. The help-desk readiness and matching-quality PRs were already merged; keep GitHub and Sites publishing separate.
-2. Add OpenAI and Cerebras keys/model IDs privately, then run the connection check below. Confirm real photo suggestions and structured text normalization. Pin model IDs only after the actual account succeeds. The no-match UI links directly to the official Rapid Metro page.
-3. Reconnect the Sites integration, publish this reviewed commit to the existing owner-private Site and confirm deployment status. Preserve .openai/hosting.json; do not create a replacement Site. Confirm hosted DB/BUCKET, pending migrations and runtime secret revision. Local .dev.vars is not hosted configuration.
+1. Review and merge the Cerebras Qwen reliability PR after CI passes. The two-provider guidance, help-desk readiness and matching-quality PRs are already merged. Keep GitHub and Sites publishing separate.
+2. OpenAI and Cerebras keys/model IDs are configured in the owner's ignored local `.dev.vars`. Both passed the live synthetic connection check; the paired Cerebras evaluation completed after the Qwen fix, with no measured matching improvement. See EVALUATION.md. Confirm real item-only photo suggestions through the app before claiming photo quality. The no-match UI links directly to the official Rapid Metro page.
+3. Reconnect the Sites integration, publish the reviewed commit to the existing owner-private Site and confirm deployment status. Preserve .openai/hosting.json; do not create a replacement Site. Confirm hosted DB/BUCKET, pending migrations and runtime secret revision. Local .dev.vars is not hosted configuration.
 4. Sign in with separate attendee and staff accounts. Read each Site-specific ID from My account details; configure STAFF_USER_IDS server-side. Test the full workflow and changed-ID denials. Include a physical item hand-in and the staff custody checkbox in the rehearsal. Optional API automation is below. Never use local_seedy as a hosted staff ID.
 5. After the private build passes, select the intended demonstration audience. Repeat anonymous/signed-in checks at the final URL from a second device, rehearse the three-minute script in DEMO.md and record a real working backup.
 6. Interview an organizer/help-desk operator with permission. Record actual feedback and pilot criteria. Pricing, willingness to pay and operating savings remain hypotheses until measured.
 
-Live credentials and authenticated hosted sessions are not available to the completion run. Sites tool access is also unavailable in this session. These gates must remain pending until actual results exist; no credentials should be pasted into chat.
+Local provider credentials have been checked, but authenticated hosted sessions, hosted provider configuration and actual Sites deployment results have not been verified. These gates remain pending; no credentials should be pasted into chat.
 
 ## Provider connection and usage checks
 
@@ -41,7 +41,7 @@ The paired evaluation sends only synthetic public item fields to Cerebras, cachi
 
 JSON reports retain HTTP status, duration and numeric token usage only. Billable costs are not guessed. Keys, prompts, raw provider diagnostics and private evidence are excluded. Review live output before quoting findings in the pitch.
 
-Request formats were checked against the official [OpenAI structured output](https://developers.openai.com/api/docs/guides/structured-outputs) and [image input](https://developers.openai.com/api/docs/guides/images-vision), and [Cerebras chat completion](https://inference-docs.cerebras.ai/api-reference/chat-completions) documentation. Account/model access still requires the live check. The no-match link targets the [official Rapid Metro page](https://new.delhimetrorail.com/en/rapid-metro); it is a navigation link, not a live inventory search.
+Request formats were checked against the official [OpenAI structured output](https://developers.openai.com/api/docs/guides/structured-outputs) and [image input](https://developers.openai.com/api/docs/guides/images-vision), and [Cerebras chat completion](https://inference-docs.cerebras.ai/api-reference/chat-completions) documentation. [Cerebras reasoning guidance](https://inference-docs.cerebras.ai/capabilities/reasoning) explains that Qwen reasoning tokens consume the completion budget and supports `reasoning_effort: "none"` for this model. Local account/model access passed the synthetic check; hosted access is still unverified. The no-match link targets the [official Rapid Metro page](https://new.delhimetrorail.com/en/rapid-metro); it is a navigation link, not a live inventory search.
 
 ## Optional hosted API verification
 

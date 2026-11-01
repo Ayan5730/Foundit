@@ -29,13 +29,26 @@ After the matching-quality PR merged, the 1 November rerun on main commit e2f697
 
 These cases show why a 0-100 similarity score must never be read as an ownership probability. A useful next evaluation needs real desk inventory and independently labelled reports, including similarly described phones, before changing broad thresholds or claiming precision.
 
-The UI displays the actual conflicting/unknown signals and requires private human verification. These results do not authorize recovery or establish real-world precision. Ayan should propose any scoring-rule change, agree on its impact, and evaluate against a fresh held-out set rather than tuning these results away.
+The UI displays the actual conflicting/unknown signals and requires private human verification. These results do not authorize recovery or establish real-world precision. Any scoring-rule change needs a stated rationale and a fresh held-out set rather than tuning these results away.
+
+## Live paired text evaluation
+
+On 1 November 2026, OpenAI and Cerebras passed the synthetic connection check with the owner's local configuration. The paired evaluation then used Cerebras `qwen-3.8-27b` on the same 24 fictional cases and fixed matcher in both arms. The first run had seven failed normalizations despite HTTP 200 responses: seven completions reached the 800-token cap. Disabling Qwen reasoning for this short structured-output task produced a completed rerun: 18/18 requests returned HTTP 200, no normalization failed, and the largest completion used 85 tokens. These are local synthetic observations, not a hosted or real-attendee test.
+
+| 24-case comparison | Raw fields | Cerebras suggestions applied automatically |
+|---|---:|---:|
+| Positive queries with correct candidate in top three | 12/13 | 12/13 |
+| Negative queries receiving a candidate | 3/11 | 4/11 |
+| False candidate suggestions across all cases | 3 | 6 |
+
+The automatic suggestion arm added false candidates in cases 8, 9 and 20 and did not recover the missed positive. It provides **no measured matching improvement** on this set. The product shows suggestions for explicit review and editing; the evaluation deliberately applies them automatically to expose possible effects. Do not present Cerebras as improving retrieval or the score from these results. Its current role is optional, editable description help and a follow-up question. Manual reporting remains available.
+
+The paired runner is `npm run evaluate:providers -- --live`; without `--live` it makes no calls and reports `not_run`. Reports under ignored `outputs/` include numeric usage and request duration, but no key, prompt, private evidence or inferred billable cost. The developer-authored cases are small and previously inspected, so this result does not establish field accuracy.
 
 ## What is not measured
-Live OpenAI/Cerebras normalization versus raw input, provider latency/token usage/cost, large-inventory ranking and real attendee recovery outcomes remain unmeasured. The offline runner made zero provider calls. The two-provider demo links directly to the official Rapid Metro page; the optional backend Exa adapter is outside the demo and its live source quality remains unmeasured.
-The paired text-normalization runner is now available as `npm run evaluate:providers -- --live`; without --live it makes no calls and reports not_run. It reuses the fixed cases/scoring in both arms and records actual numeric usage and durations. See RELEASE.md for configuration, call limits and the distinction between synthetic suggestions and user confirmation. Tooling availability is not a measured improvement.
-Per-scenario matcher timings are process-only observations, including cold start variation; they are not HTTP/provider latency or a service-level promise.
+
+OpenAI photo-attribute accuracy, Cerebras suggestion quality against independently labelled real descriptions, hosted provider behavior, billable cost, large-inventory ranking and real attendee recovery outcomes remain unmeasured. The two-provider demo links directly to the official Rapid Metro page; the optional backend Exa adapter is outside the demo and its live source quality remains unmeasured. Per-scenario matcher timings are process-only observations, including cold start variation; they are not HTTP/provider latency or a service-level promise.
 
 ## Other verification
-The separate 18 backend tests cover privacy, authorization, idempotency, reservations, invalid/competing review, repeated handover, provider failures, malformed data and guidance caching. Five release-tool tests cover opt-in provider calls, numeric-only usage reports, paired evaluation, redirect/origin protection and the real handler workflow with isolated actors. Nine frontend tests cover form validation, event time mapping, retry identity and API errors.
+The current 25 backend tests cover privacy, authorization, idempotency, reservations, invalid/competing review, repeated handover, provider failures, malformed data, guidance caching and Qwen request behavior. Five of those cover release tooling: opt-in provider calls, numeric-only usage reports, paired evaluation, redirect/origin protection and the real handler workflow with isolated actors. Ten frontend tests cover form validation, event time mapping, retry identity and API errors.
 Local D1/R2 browser flow supplements SQL-adapter tests; hosted multi-user verification remains required.

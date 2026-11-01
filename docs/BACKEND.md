@@ -1,6 +1,6 @@
 # Ayan's backend plan
 
-Status: backend and connected frontend checkpoints are merged in main. Live providers and hosted multi-user verification remain pending; RELEASE.md supplies opt-in connection/evaluation/workflow checks. Follow AGENTS.md and PLAN.md. Use TypeScript Sites routes, not FastAPI.
+Status: backend and connected frontend checkpoints are merged in main. OpenAI and Cerebras passed local synthetic connection checks; hosted multi-user/provider verification remains pending. RELEASE.md supplies opt-in connection/evaluation/workflow checks. This document records Ayan's original backend checkpoint; AGENTS.md has current ownership. Use TypeScript Sites routes, not FastAPI.
 
 ## First checkpoint
 Read docs/API.md and shared/api.ts for the proposed executable contract; typed JSON examples live in shared/examples.ts. Health and bootstrap are dynamic, no-store routes. Authentication uses the existing Sites helper and an exact server-side staff-ID allowlist. No frontend/hosting/root dependency files are changed.
@@ -11,7 +11,7 @@ CEREBRAS_API_KEY and CEREBRAS_MODEL: structured-output chat model, set together.
 EXA_API_KEY: official-source recovery guidance.
 STAFF_USER_IDS: comma-separated exact Sites user IDs; unset grants no staff role.
 DB and BUCKET are existing platform bindings, not string environment secrets.
-Use the ignored .dev.vars file locally; configure hosted secrets through the publishing owner later. Do not send keys in chats, commit them, or use public environment prefixes. The user requested mocked verification; live provider calls are not authorized for this run.
+Use the ignored .dev.vars file locally; configure hosted secrets through the publishing owner later. Do not send keys in chats, commit them, or use public environment prefixes. The original backend checkpoint used mocked verification; the owner later authorized and completed local synthetic provider checks.
 
 ## Backend verification command
 Use node --experimental-strip-types --test tests/backend/*.test.ts with Node >=22.13.0; no root package edits/dependencies are needed. Also run npm run typecheck and npm run build. Hosted identity/header integrity must be verified on Sites later; local mocks are not production proof.
@@ -48,7 +48,7 @@ After setup PR merge, branch backend/core from main. Deliver shared contract/exa
 - Matching uses actual normalized attributes and documented weights. Scores remain heuristic. Atomic D1 batches and unique report reservations protect approval; only confirmed handover completes recovery.
 - A precision guard excludes an Electronics candidate when both titles clearly name different item types (for example, phone versus headphones). Generic or mixed titles keep the original score; the 24-case bag baseline is unchanged. Broader item evaluation is still needed.
 - Provider adapters use bounded calls and validated structured responses; private proof is never passed into the public assistance pipeline. Exa guidance is source-restricted, cited and cached.
-- All 18 backend tests and 5 existing frontend tests pass. TypeScript and production builds pass. The generated migration was applied once to local D1; SQL-adapter tests load that same migration.
+- At the original backend checkpoint, all 18 backend tests and 5 existing frontend tests passed. The current suite has 35 tests; see EVALUATION.md. The generated migration was applied once to local D1; SQL-adapter tests load that same migration.
 - Local HTTP smoke passed development sign-in, report create/readback, replay, computed match (sample score 99), R2 upload/read, claim creation, nonstaff review denial, and anonymous media denial.
 - After stopping development and starting the built Worker, the public report still returned200 with private fields absent; bootstrap was anonymous and the owner-only report list returned401.
 - Full staff handover, rejected/competing claims and private cross-user checks pass through the handler/SQL adapter. Hosted multi-user auth and real-provider results have not been verified. At this backend checkpoint the UI was preview-only; frontend integration subsequently merged in PR #4.

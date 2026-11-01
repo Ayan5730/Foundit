@@ -4,21 +4,19 @@
 | Outcome | Evidence/current state |
 |---|---|
 | Shared foundation and contract | Merged; typed schemas/examples and health/bootstrap exist |
-| Backend recovery workflow | 16 API method/path combinations; 18 workflow/provider tests plus 5 release-tool tests passing |
+| Backend recovery workflow | 16 API method/path combinations; privacy, state-transition and provider tests passing locally |
 | Connected frontend | Merged in PR #4; real forms, matching, tickets, staff actions and a direct official guidance link |
 | Local persistence and recovery | Browser report readback after reload; approval reserves; handover recovers |
-| Partner integrations | OpenAI/Cerebras adapters and mocked/failure tests exist; live credentials/configuration still needed. The two-provider demo does not use Exa |
-| Labelled evaluation | 24 offline synthetic scenarios; limitations disclosed in EVALUATION.md |
+| Partner integrations | OpenAI/Cerebras passed the owner's local synthetic connection check. Cerebras completed 18/18 calls after the Qwen reliability fix; hosted calls and real-photo quality still need verification. The two-provider demo does not use Exa |
+| Labelled evaluation | 24 offline synthetic scenarios and paired Cerebras text evaluation; no measured matching gain, with more false candidate suggestions when AI output was applied automatically. See EVALUATION.md |
 | Hosted candidate | Registered owner-private Site; publication result must be verified separately |
-| Distinct users, live provider calls, recording | Pending hosted verification and rehearsal |
+| Distinct users and recording | Pending hosted verification and rehearsal |
 | Customer/business validation | No organizer interview or willingness-to-pay evidence supplied |
 
-Follow RELEASE.md for the remaining owner steps and exact commands. Live checks and synthetic paired evaluation are ready to run after credentials are configured; their presence is not evidence of a successful live call.
+Follow RELEASE.md for the remaining owner steps and exact commands. The local provider calls succeeded; this is not evidence that hosted secrets, photo quality or attendee workflows are ready.
 
-## Two owners, no overlapping edits
-Adarsh: frontend/integration/publishing, secure hosted configuration, responsive and second-device checks, recording/pitch, organizer interviews.
-Ayan: server integrations/model validation, matching changes proposed with evidence, API/schema/privacy/auth checks, live provider timing/usage measurements.
-Shared API changes require agreement. Do not make browser workarounds for backend permissions or fake provider availability.
+## Current ownership
+Adarsh is handling frontend, backend, integration and publishing. Keep server permissions and private data checks on the backend; do not make browser workarounds or fake provider availability.
 
 ## Rehearsal preparation
 1. Verify checks in SETUP.md and deploy the exact integration commit privately.
@@ -40,13 +38,13 @@ Shared API changes require agreement. Do not make browser workarounds for backen
 2:40–3:00: State measured synthetic results and the organizer-paid event-package hypothesis; attendees use it free. Name the current verification gaps.
 
 ## Judge questions and defensible answers
-- Why two APIs? OpenAI suggests visible image attributes; Cerebras suggests editable public descriptions and one clarification. Rapid Metro already publishes its lost-and-found procedure, so this one-operator demo links to the official page directly. Demonstrate actual configured calls before claiming live use.
+- Why two APIs? OpenAI suggests visible image attributes; Cerebras offers optional, editable public-description help and one clarification. Both passed local synthetic connection checks. The paired text evaluation did not improve matching and increased false candidate suggestions when suggestions were automatically applied, so do not claim a retrieval gain. Rapid Metro already publishes its lost-and-found procedure, so this one-operator demo links to the official page directly.
 - Why is this safer than a group chat? Public details support discovery; an earlier private clue and staff review support ownership checks. Neither AI nor a score approves ownership.
 - Accuracy? 12/13 positive synthetic queries appeared in the top three; 3/11 negative queries still produced candidates. Small artificial evaluation, not real recovery accuracy.
 - What fails offline? Existing-record workflow works locally; live provider services need connectivity. Manual description remains possible during provider outages.
 - Who pays? Proposed organizer event package; no validated price or willingness to pay yet.
 - What is the differentiation? Event-scoped discovery joined to private verification, reservations and confirmed handover, with an inspectable source-backed next step when no inventory match exists.
-- What still needs validation? Real organizer workflow, larger inventory, live provider quality/cost and hosted multi-account boundaries.
+- What still needs validation? Real organizer workflow, larger inventory, photo/suggestion quality, provider cost and hosted multi-account boundaries.
 
 ## Business work requiring people
 With permission, interview at least one event organizer/help-desk operator. Ask how reports arrive, how long comparisons/reunions take, how wrong claims are handled, staffing burden and whether they would pilot this.
