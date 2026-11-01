@@ -63,3 +63,14 @@ Publishing uses the exact pushed source commit and its build archive. Verify pri
 
 ## Additive audit migration
 After the initial and approved-preview migrations, apply `drizzle/0002_audit_query_indexes.sql` once to existing local databases using the same local D1 execute command and persistence directory, replacing the --file argument. Do not replay already-applied migrations. Sites publication must apply the new pending migration separately. It adds query indexes and does not delete data.
+
+## Netlify deployment
+The `deploy/netlify-20261101` branch adds a second hosting target, owned by Adarsh. The original `npm run build` remains Sites/Vinext with D1/R2 and its supplied identity helpers. `npm run build:netlify` builds Next.js for Netlify, with verified Netlify Identity sessions, PostgreSQL via `@netlify/database`, and private Netlify Blobs. The Netlify build replaces only the server runtime import; it never trusts caller-supplied Sites identity headers.
+
+Netlify project: `foundit-recovery-desk`. The checkout-local `.netlify/` directory is ignored. Enable Identity in the project dashboard, leave email confirmation enabled, and configure the available sign-in providers there. The `/account` page supports email registration, sign-in, confirmation callbacks, password recovery and sign-out; enabled OAuth providers are discovered from Identity settings.
+
+The fresh PostgreSQL schema is in `netlify/database/migrations/20261101100000_foundit.sql`; Netlify applies it during deployment. Existing Sites data is not copied. The adapter keeps parameter binding, transactional state changes and serializable batch retries, and a partial unique index prevents concurrent duplicate active claims. Production photo storage persists across deployments. Preview photo stores are isolated by deploy ID and do not access production photos.
+
+Set `STAFF_USER_IDS` to the comma-separated Netlify Identity user IDs of trusted reviewers, using Netlify environment variables with Functions scope; redeploy after changes. Account IDs from the Netlify dashboard or ChatGPT are not substitutes. Optional `OPENAI_API_KEY`, `OPENAI_MODEL`, `CEREBRAS_API_KEY`, `CEREBRAS_MODEL` and `EXA_API_KEY` also belong in hosted environment variables, never in the repository. Without provider credentials, manual reports and matching remain available and assistance reports its unavailability.
+
+Verify with `npm run typecheck`, `npm test`, `npm run lint`, `npm run build` and `npm run build:netlify`. Deploy a draft with `netlify deploy --context deploy-preview`, verify it, then publish with `netlify deploy --prod`. Identity needs a real hosted deployment; local development does not provide Netlify Identity sign-in.

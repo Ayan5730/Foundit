@@ -19,6 +19,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const netlify = process.env.FOUNDIT_DEPLOY_TARGET === "netlify";
   return (
     <html lang="en">
       <body className="foundit-app antialiased">
@@ -26,8 +27,9 @@ export default function RootLayout({
           Skip to content
         </a>
         <SessionProvider
-          signInHref={chatGPTSignInPath("/workspace")}
-          signOutHref={chatGPTSignOutPath("/")}
+          authProvider={netlify ? "netlify" : "sites"}
+          signInHref={netlify ? "/account" : chatGPTSignInPath("/workspace")}
+          signOutHref={netlify ? "/account?mode=signout" : chatGPTSignOutPath("/")}
         >
           <SiteHeader />
           {children}

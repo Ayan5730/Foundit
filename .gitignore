@@ -12,6 +12,7 @@
 # Generated builds and framework state
 /dist/
 /.next/
+/.next-netlify/
 /.vinext/
 /out/
 next-env.d.ts
@@ -45,3 +46,6 @@ yarn-error.log*
 
 # OS metadata
 .DS_Store
+
+# Netlify checkout-local link and deployment state
+/.netlify/

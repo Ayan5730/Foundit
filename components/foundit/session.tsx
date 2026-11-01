@@ -15,16 +15,19 @@ type Session = {
   refresh: () => void;
   signInHref: string;
   signOutHref: string;
+  authProvider: "sites" | "netlify";
 };
 const SessionContext = createContext<Session | null>(null);
 export function SessionProvider({
   children,
   signInHref,
   signOutHref,
+  authProvider = "sites",
 }: {
   children: ReactNode;
   signInHref: string;
   signOutHref: string;
+  authProvider?: "sites" | "netlify";
 }) {
   const [data, setData] = useState<Bootstrap | null>(null),
     [loading, setLoading] = useState(true),
@@ -34,7 +37,16 @@ export function SessionProvider({
     const controller = new AbortController();
     setLoading(true);
     setError("");
-    api<Bootstrap>("/bootstrap", { signal: controller.signal })
+    const initialize = async () => {
+      if (authProvider === "netlify") {
+        const { handleAuthCallback, getUser } = await import("@netlify/identity");
+        const callback = await handleAuthCallback();
+        if (callback?.type === "recovery" || callback?.type === "invite") window.location.assign("/account?mode=password");
+        await getUser();
+      }
+      return api<Bootstrap>("/bootstrap", { signal: controller.signal });
+    };
+    initialize()
       .then((value) => {
         if (!controller.signal.aborted) {
           setData(value);
@@ -48,7 +60,7 @@ export function SessionProvider({
         }
       });
     return () => controller.abort();
-  }, [revision]);
+  }, [revision, authProvider]);
   return (
     <SessionContext.Provider
       value={{
@@ -58,6 +70,7 @@ export function SessionProvider({
         refresh: () => setRevision((n) => n + 1),
         signInHref,
         signOutHref,
+        authProvider,
       }}
     >
       {children}
@@ -95,7 +108,7 @@ export function RequireSession({
   children: ReactNode;
   staff?: boolean;
 }) {
-  const { data, loading, error, refresh, signInHref } = useSession();
+  const { data, loading, error, refresh, signInHref, authProvider } = useSession();
   if (loading)
     return (
       <div className="service-state" role="status">
@@ -127,7 +140,7 @@ export function RequireSession({
           </p>
         ) : null}
         <a className="button button-primary" href={signInHref} target="_top">
-          Sign in with ChatGPT
+          {authProvider === "netlify" ? "Sign in to FoundIt" : "Sign in with ChatGPT"}
         </a>
       </div>
     );

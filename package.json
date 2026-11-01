@@ -19,11 +19,17 @@
     "evaluate:matching": "node --experimental-strip-types scripts/evaluate-matching.ts",
     "providers:check": "node --env-file-if-exists=.dev.vars --experimental-strip-types scripts/check-providers.ts",
     "evaluate:providers": "node --env-file-if-exists=.dev.vars --experimental-strip-types scripts/evaluate-providers.ts",
-    "verify:hosted": "node --env-file-if-exists=.env.release.local --experimental-strip-types scripts/verify-hosted.ts"
+    "verify:hosted": "node --env-file-if-exists=.env.release.local --experimental-strip-types scripts/verify-hosted.ts",
+    "build:netlify": "node scripts/run-netlify.mjs build",
+    "dev:netlify": "node scripts/run-netlify.mjs dev"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
     "@hookform/resolvers": "^5.7.1",
+    "@netlify/blobs": "^11.1.7",
+    "@netlify/database": "^2.0.1",
+    "@netlify/functions": "^6.0.3",
+    "@netlify/identity": "^2.0.0",
     "@shadcn/react": "^0.3.0",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
@@ -50,6 +56,7 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.37.1",
     "@cloudflare/workers-types": "4.20260515.1",
+    "@electric-sql/pglite": "^0.2.17",
     "@tailwindcss/postcss": "4.2.1",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",

@@ -31,3 +31,6 @@ Check branch/status before editing. Do not overwrite teammate changes, force-pus
 
 ## Verification
 Run npm run typecheck, npm test and npm run build for source/config changes. Add meaningful tests when implementing behavior. Check relevant browser flows for UI work. Report actual outcomes and limits, never planned tests as passing. Live provider and hosted verification are explicit opt-in checks, never part of ordinary CI.
+
+## Netlify deployment
+Adarsh owns netlify/** and netlify.toml. The Netlify deployment uses Next.js, Netlify Identity, PostgreSQL and private Blobs. Keep the original Sites/Vinext/D1/R2 build available. Provider secrets stay in hosted function environment variables.

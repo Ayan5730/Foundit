@@ -5,7 +5,7 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  globalIgnores([
+  globalIgnores([".next-netlify/**", ".netlify/**",
     "dist/**",
     ".vinext/**",
     ".wrangler/**",
