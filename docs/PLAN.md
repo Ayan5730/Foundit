@@ -1,14 +1,14 @@
 # FoundIt agreed build plan
 
-Status (1 November 2026): foundation, contract, backend and connected frontend checkpoints are merged. The complete recovery workflow is verified locally. Release automation adds opt-in provider checks, paired text-normalization evaluation and hosted account/workflow checks. Live providers, hosted multi-account verification, second-device rehearsal, recording and business validation remain release gates. See FRONTEND.md, EVALUATION.md, DEMO.md and RELEASE.md for actual evidence. The original ChatGPT handoff's FastAPI claims do not describe this repository.
+Status (1 November 2026): foundation, contract, backend and connected frontend checkpoints are merged. The complete recovery workflow is verified locally. OpenAI and Cerebras passed local synthetic connection checks; a completed 24-case Cerebras text evaluation showed no matching gain and more false candidate suggestions when suggestions were automatically applied. Hosted provider configuration, hosted multi-account verification, second-device rehearsal, recording and business validation remain release gates. See FRONTEND.md, EVALUATION.md, DEMO.md and RELEASE.md for actual evidence. The original ChatGPT handoff's FastAPI claims do not describe this repository.
 
-Current demo decision: use OpenAI for visible photo attributes and Cerebras for editable text suggestions, subject to live checks and paired evaluation. The no-match browser flow links to Rapid Metro's official lost-and-found page directly. The original Exa proposal below remains documented, while its backend endpoint is unused by the two-provider demo and awaits backend-owner review.
+Current demo decision: use OpenAI for visible photo-attribute suggestions and Cerebras for optional, editable text suggestions. Neither provider is proven to improve matching or recovery outcomes. The no-match browser flow links to Rapid Metro's official lost-and-found page directly. The original Exa proposal below remains documented, while its backend endpoint is unused by the two-provider demo.
 
 ## Decisions
 - Six-hour build; events/hackathons first; dedicated staff screen.
-- Adarsh: frontend, integration, and publication. Ayan: backend.
+- Original division: Adarsh handled frontend/integration/publication and Ayan handled backend. Adarsh now handles both frontend and backend completion.
 - One Sites-hosted React/Vinext application with TypeScript server routes, D1 and private R2 files. This supersedes React SPA + Python FastAPI.
-- OpenAI, Cerebras, Exa API access is reported available; each needs a real connection check.
+- OpenAI and Cerebras passed local synthetic connection checks. Exa is optional and unused by the current demo.
 - Sites ChatGPT identity; staff IDs allowlisted server-side.
 - Public hosted link with local workflow/recording backup. No deployment during the foundation task.
 - One event: FoundIt Hackathon Help Desk; do not imply organizer endorsement.
@@ -18,7 +18,7 @@ Lost/found reports -> real ranked match -> private claim -> staff approval -> co
 When no match exists, return source-linked official recovery guidance. Product claims must remain inspectable. No calibrated probability or online-learning claims.
 
 ## Ownership and workflow
-AGENTS.md is authoritative for paths. Frontend and backend use separate branches from the same merged foundation. Adarsh owns root configuration/lockfiles and the integration branch. Ayan proposes the shared executable API contract/examples first; both agree before feature integration. Shared contract ownership does not authorize breaking frontend assumptions.
+AGENTS.md is authoritative for current paths and safeguards. The original frontend/backend checkpoints used separate branches and agreed on the shared executable API contract. Adarsh now handles frontend, backend and integration completion. Preserve the established contract when changing either side.
 Use PR checkpoints; verify each merged flow before continuing. Keep GitHub source sharing distinct from Sites publishing. Never exchange credentials in Git.
 
 ## Data and privacy contract (planned)

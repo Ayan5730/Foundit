@@ -282,7 +282,7 @@ if (isMain(import.meta.url)) {
       scope:
         "Fixed 24-case synthetic baseline plus 12 targeted phone diagnostics; not real-world accuracy. No AI calls.",
       provider_comparison:
-        "Not measured: credentials and live normalization outputs unavailable.",
+        "Not included in this offline run; use evaluate:providers -- --live for a separate paired text comparison.",
       total: summarize(rows),
       development: summarize(rows.slice(0, 16)),
       held_out: summarize(rows.slice(16)),

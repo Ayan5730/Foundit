@@ -18,10 +18,21 @@ test("Cerebras structured normalization uses bounded request and excludes hidden
   const result=await assist({CEREBRAS_API_KEY:"mock",CEREBRAS_MODEL:"mock-text"},"navy laptop bag",undefined,async(url,init)=>{
     assert.equal(url,"https://api.cerebras.ai/v1/chat/completions");assert.ok(init?.signal);
     const body=JSON.parse(String(init?.body));assert.equal(body.response_format.json_schema.strict,true);
+    assert.equal(body.reasoning_effort,undefined);
     assert.equal(JSON.stringify(body).includes("private_clue"),false);
     return Response.json({choices:[{message:{content:JSON.stringify({...emptySuggestions(),title:"Backpack",category:"Bags",color:"Blue",follow_up:"Which event area?"})}}]});
   });
   assert.equal(result.providers.cerebras,"available");assert.equal(result.suggestions.color,"Blue");
+});
+test("Qwen disables reasoning for bounded structured item suggestions",async()=>{
+  const result=await assist({CEREBRAS_API_KEY:"mock",CEREBRAS_MODEL:"qwen-3.8-27b"},"navy bag",undefined,async(_,init)=>{
+    const body=JSON.parse(String(init?.body));
+    assert.equal(body.reasoning_effort,"none");
+    assert.equal(body.max_completion_tokens,800);
+    return Response.json({choices:[{message:{content:JSON.stringify({...emptySuggestions(),title:"Navy bag",category:"Bags"})}}]});
+  });
+  assert.equal(result.providers.cerebras,"available");
+  assert.equal(result.suggestions.title,"Navy bag");
 });
 test("Exa accepts only HTTPS official sources, preserves citations and failure states",async()=>{
   const result=await recoveryGuidance({EXA_API_KEY:"mock"},async(url,init)=>{

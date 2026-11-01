@@ -1,6 +1,6 @@
 # FoundIt setup and integration
 
-README.md is preserved. Read AGENTS.md for sole ownership and docs/API.md for the agreed contract.
+README.md is preserved. Read AGENTS.md for current ownership and docs/API.md for the agreed contract.
 
 ## Current implementation
 React/Vinext on Sites, TypeScript API routes, D1 DB, private R2 BUCKET and the supplied ChatGPT identity helpers. The backend and connected recovery frontend are merged in main (PRs #3 and #4).
@@ -34,7 +34,7 @@ Examples contain names with empty values only. Use ignored .dev.vars for local W
 - STAFF_USER_IDS
 
 Set each model with its key after a connection test confirms account availability. All provider calls are server-side. Blank credentials produce truthful unavailable responses; manual reporting/matching still work.
-The two-provider demo uses OpenAI and Cerebras. Its no-match screen links directly to the official Rapid Metro lost-and-found page without a search API. The backend Exa endpoint remains available for Ayan to review separately, but the demo UI and release checks do not invoke it.
+The two-provider demo uses OpenAI and Cerebras. Both passed local synthetic connection checks; the paired Cerebras evaluation found no matching improvement. Its no-match screen links directly to the official Rapid Metro lost-and-found page without a search API. The backend Exa endpoint remains available, but the demo UI and release checks do not invoke it.
 DB and BUCKET are platform bindings, not string secrets. .env.example is an inventory; it does not automatically configure Worker runtime.
 
 Development simulates ONE loopback user, local_seedy. For an isolated local staff rehearsal, temporarily set STAFF_USER_IDS to that development ID in ignored .dev.vars. Remove that fixture afterward; never configure it on the hosted Site. Other local configuration must be preserved.
@@ -53,6 +53,6 @@ GitHub Actions repeats typecheck, tests, the fixed offline evaluation and produc
 The existing tests/backend/smoke-local.ts runner creates labelled fictional records on loopback only and never clears unrelated records. Follow docs/BACKEND.md for its required port/settings. Do not aim it at production.
 
 ## Team and publication
-Ayan owns backend/schema/shared contract; Adarsh owns frontend, root configuration, integration and publication. Use PR review; do not merge another owner's work or main automatically.
+Adarsh now handles backend, frontend, root configuration, integration and publication. Use focused PRs and review before merging; preserve the existing API contract and privacy boundaries.
 .openai/hosting.json persists the one registered FoundIt Site identity and DB/BUCKET binding names. GitHub origin remains the team repository; Sites source synchronization uses its separate short-lived credential through stdin, never Git configuration or files.
 Publishing uses the exact pushed source commit and its build archive. Verify private deployment first; public audience changes need the owner's explicit request. Configure hosted runtime secrets separately, deploy their revision, and test distinct staff/attendee accounts before judging.

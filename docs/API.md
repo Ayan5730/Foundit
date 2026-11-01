@@ -1,6 +1,6 @@
 # FoundIt API v1 contract
 
-Contract agreed in chat after first checkpoint e37805c. All routes below are now implemented on backend/core; live providers and hosted identity remain unverified. This follows docs/PLAN.md without changing frontend code. Import browser-safe types/runtime schemas from shared/api.ts. Representative typed fixtures are in shared/examples.ts; they are labelled examples, not a live-data fallback.
+Contract agreed in chat after first checkpoint e37805c. All routes below are implemented. OpenAI and Cerebras passed local synthetic connection checks; hosted provider behavior and identity remain unverified. Import browser-safe types/runtime schemas from shared/api.ts. Representative typed fixtures are in shared/examples.ts; they are labelled examples, not a live-data fallback.
 
 ## Implemented at the first checkpoint
 - GET /api/v1/health -> {data:{status:"ok",api_version:"v1"}}. Process availability only, not database/provider readiness.

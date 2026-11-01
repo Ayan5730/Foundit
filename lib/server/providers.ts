@@ -46,6 +46,8 @@ export async function assist(config:ProviderConfig,description:string,photoDataU
     try{
       const raw=await post(fetcher,"https://api.cerebras.ai/v1/chat/completions",config.CEREBRAS_API_KEY,{
         model:config.CEREBRAS_MODEL,max_completion_tokens:800,
+        // Qwen defaults to high reasoning, which can exhaust this short JSON task's completion budget.
+        ...(config.CEREBRAS_MODEL==="qwen-3.8-27b"?{reasoning_effort:"none"}:{}),
         messages:[{role:"system",content:instruction},{role:"user",content:JSON.stringify({description,photo_attributes:suggestions})}],
         response_format:{type:"json_schema",json_schema:{name:"item_attributes",strict:true,schema:jsonSchema}},
       });
