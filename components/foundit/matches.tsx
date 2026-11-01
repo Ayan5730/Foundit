@@ -7,6 +7,7 @@ import { RequireSession } from "./session";
 import { ReportSummary } from "./report-summary";
 import { ErrorState, EmptyState } from "./workspace";
 import { RecoveryGuidance } from "./guidance";
+import { ItemVisual } from "./item-visual";
 export function ReportMatches({ id }: { id: string }) {
   return (
     <main id="main-content" className="site-width workspace-page">
@@ -35,6 +36,8 @@ function MatchesData({ id }: { id: string }) {
       "/reports/" + encodeURIComponent(id) + "/matches",
     );
   const [selected, setSelected] = useState<string | null>(null);
+  const [hidingPreview, setHidingPreview] = useState(false);
+  const [previewError, setPreviewError] = useState("");
   const retry = () => {
     report.refresh();
     matches.refresh();
@@ -53,6 +56,18 @@ function MatchesData({ id }: { id: string }) {
     candidate =
       candidates.find((item) => item.candidate.id === selected) ??
       candidates[0];
+  async function hidePreview() {
+    setHidingPreview(true);
+    setPreviewError("");
+    try {
+      await post<PublicReport>("/reports/" + encodeURIComponent(source.id) + "/preview/hide", {});
+      retry();
+    } catch (reason) {
+      setPreviewError(message(reason));
+    } finally {
+      setHidingPreview(false);
+    }
+  }
   return (
     <>
       <div className="workspace-toolbar">
@@ -62,7 +77,13 @@ function MatchesData({ id }: { id: string }) {
         <button className="text-action" onClick={retry}>
           Refresh matches
         </button>
+        {source.has_shared_preview ? (
+          <button className="text-action" onClick={hidePreview} disabled={hidingPreview}>
+            {hidingPreview ? "Hiding preview…" : "Hide shared preview"}
+          </button>
+        ) : null}
       </div>
+      {previewError ? <p className="field-error" role="alert">{previewError}</p> : null}
       {source.status !== "active" ? (
         <div className="submission-notice" role="status">
           {source.status === "recovered"
@@ -84,8 +105,11 @@ function MatchesData({ id }: { id: string }) {
                 aria-pressed={candidate.candidate.id === item.candidate.id}
                 onClick={() => setSelected(item.candidate.id)}
               >
-                <strong>{item.candidate.title}</strong>
-                <span>{item.score}/100 similarity</span>
+                <ItemVisual report={item.candidate} compact />
+                <span className="candidate-copy">
+                  <strong>{item.candidate.title}</strong>
+                  <span>{item.score}/100 similarity</span>
+                </span>
               </button>
             ))}
           </div>

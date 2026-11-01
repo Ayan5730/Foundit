@@ -4,7 +4,7 @@ export const API_VERSION = "v1" as const;
 export const EVENT = { id: "foundit-hackathon", name: "FoundIt Hackathon Help Desk" } as const;
 export const CATEGORIES = ["Bags", "Electronics", "Keys", "Clothing", "Books", "Accessories", "Drinkware", "Other"] as const;
 export const LOCATIONS = ["Registration", "Main Hall", "Workshop Rooms", "Cafeteria", "Entrance", "Other"] as const;
-export const LIMITS = { title: 120, description: 2000, evidence: 2000, image_bytes: 4 * 1024 * 1024 } as const;
+export const LIMITS = { title: 120, description: 2000, evidence: 2000, image_bytes: 4 * 1024 * 1024, shared_preview_bytes: 512 * 1024 } as const;
 export const ReportKindSchema = z.enum(["lost", "found"]);
 export const ReportStatusSchema = z.enum(["active", "reserved", "recovered"]);
 export const ClaimStatusSchema = z.enum(["pending", "approved", "rejected", "recovered"]);
@@ -39,6 +39,7 @@ export type PublicReport = {
   color: string | null; description: string; visible_features: string[];
   location: typeof LOCATIONS[number]; occurred_at: string;
   status: z.infer<typeof ReportStatusSchema>; created_at: string;
+  has_shared_preview: boolean;
 };
 export const CreateClaimSchema = z.object({
   client_request_id: z.string().uuid(), lost_report_id: z.string().uuid(),

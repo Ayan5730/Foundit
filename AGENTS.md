@@ -21,6 +21,7 @@ Check branch/status before editing. Do not overwrite teammate changes, force-pus
 ## Invariants for later implementation
 - Backend owns scores, identity, permissions, private evidence, and state transitions.
 - Public responses exclude private clues/evidence, owner identity, and original photo URLs.
+- Any item preview shown to other users requires explicit reporter approval and separate storage from the private original. A photo never proves ownership.
 - AI suggestions are editable; unknowns remain unknown. No hardcoded matches or online-learning claims.
 - Approval reserves items; confirmed handover marks recovery. Human staff approve ownership.
 - Use Sites server identity, not browser-supplied owner IDs. Staff allowlist checks are server-side.

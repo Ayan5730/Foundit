@@ -30,7 +30,7 @@ Use PR checkpoints; verify each merged flow before continuing. Keep GitHub sourc
 - Claim states: pending -> approved -> recovered, or pending -> rejected.
 - Approval reserves; handover completes recovery. No competing reservations.
 - Finder supplies a private clue before any claimant evidence exists.
-- Original images: uploader and staff only. Public candidates use safe fields and category illustrations.
+- Original images: uploader and staff only. A separate, reduced item preview can appear to signed-in match viewers after explicit reporter approval; otherwise candidates use a labelled category icon.
 - Public endpoints never serialize owner identity, private reference clues, claimant evidence, or original image links.
 - Anonymous visitors: landing/public summaries. Writes, owner records and matches: signed-in users. Staff access requires backend allowlist. Ownership always comes from Sites identity, not request body.
 

@@ -23,6 +23,10 @@ Apply the initial migration ONCE to a new local database after building:
 node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0000_gray_speedball.sql
 ```
 Do not replay applied migrations. Later migrations must retain their history. Local and hosted data are separate; Sites publication applies pending hosted schema migrations. Demo data never belongs in migrations.
+The approved item-preview feature adds `drizzle/0001_past_vengeance.sql`. It was applied once to this shared local workspace on 1 November 2026; do not replay it here. Apply it once to any other existing local database before testing previews; publishing must also apply it to hosted D1.
+```sh
+node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0001_past_vengeance.sql
+```
 
 Run `npm run dev` and open the printed loopback URL, normally http://127.0.0.1:5173. Stop with Ctrl+C before building on Windows to avoid locked dist files.
 `npm start` serves the built Worker locally using the same .wrangler/state; it does not deploy and does not simulate sign-in.

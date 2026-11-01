@@ -92,9 +92,52 @@
 .record-row:hover {
   background: #f6f9ff;
 }
-.record-row > span:nth-child(2) {
+.record-row .record-main {
   min-width: 0;
   flex: 1;
+}
+.item-visual {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  margin-top: 18px;
+  overflow: hidden;
+  border: 1px solid #dce5f3;
+  border-radius: 7px;
+  background: #f3f6fc;
+  color: var(--blue);
+}
+.item-visual img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: white;
+}
+.item-visual-empty {
+  display: grid;
+  justify-items: center;
+  gap: 9px;
+  color: #496593;
+}
+.item-visual-empty span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.item-visual-compact {
+  width: 52px;
+  height: 52px;
+  margin: 0;
+  aspect-ratio: 1;
+  flex: 0 0 52px;
+  border-radius: 6px;
+}
+.item-visual-caption {
+  margin: 7px 0 0;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--muted);
 }
 .record-row strong {
   font-size: 14px;
@@ -240,6 +283,9 @@
 }
 .candidate-tabs button {
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   text-align: left;
   border: 1px solid var(--line);
   border-radius: 7px;
@@ -253,12 +299,15 @@
   border-color: var(--blue);
   background: #edf3ff;
 }
-.candidate-tabs strong {
+.candidate-copy {
+  min-width: 0;
+}
+.candidate-tabs .candidate-copy strong {
   display: block;
   font-size: 13px;
   overflow-wrap: anywhere;
 }
-.candidate-tabs span {
+.candidate-tabs .candidate-copy > span {
   display: block;
   margin-top: 6px;
   color: var(--muted);
