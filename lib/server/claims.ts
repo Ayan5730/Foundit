@@ -20,18 +20,22 @@ export async function createClaim(store:Store,actor:Actor,input:CreateClaim) {
     throw new ApiError(422,"invalid_pair","Choose a compatible lost and found report.");
   const id=crypto.randomUUID(),now=new Date().toISOString();
   try {
-    const result=await store.run("INSERT INTO claims (id,owner_id,client_request_id,payload_hash,lost_report_id,found_report_id,evidence,status,created_at,updated_at) SELECT ?,?,?,?,?,?,?,'pending',?,? WHERE EXISTS (SELECT 1 FROM reports WHERE id=? AND status='active') AND EXISTS (SELECT 1 FROM reports WHERE id=? AND status='active')",
-      id,actor.id,input.client_request_id,hash,lost.id,found.id,input.evidence,now,now,lost.id,found.id);
-    if(!result.meta.changes)throw new ApiError(409,"reports_unavailable","One of these reports is already reserved or recovered.");
+    const result=await store.run("INSERT INTO claims (id,owner_id,client_request_id,payload_hash,lost_report_id,found_report_id,evidence,status,created_at,updated_at) SELECT ?,?,?,?,?,?,?,'pending',?,? WHERE EXISTS (SELECT 1 FROM reports WHERE id=? AND status='active') AND EXISTS (SELECT 1 FROM reports WHERE id=? AND status='active') AND NOT EXISTS (SELECT 1 FROM claims WHERE owner_id=? AND lost_report_id=? AND found_report_id=? AND status IN ('pending','approved'))",
+      id,actor.id,input.client_request_id,hash,lost.id,found.id,input.evidence,now,now,lost.id,found.id,actor.id,lost.id,found.id);
+    if(!result.meta.changes){
+      const prior=await replay();if(prior)return prior;
+      if(await store.one("SELECT id FROM claims WHERE owner_id=? AND lost_report_id=? AND found_report_id=? AND status IN ('pending','approved')",actor.id,lost.id,found.id))throw new ApiError(409,"duplicate_claim","You already have an active claim for this pair of reports.");
+      throw new ApiError(409,"reports_unavailable","One of these reports is already reserved or recovered.");
+    }
   }catch(error){if(constraint(error)){const prior=await replay();if(prior)return prior;}throw error;}
   return {claim:claimView(await row(store,id)),created:true};
 }
-export async function listClaims(store:Store,actor:Actor):Promise<ClaimSummary[]> {
-  return (await store.all<ClaimRow>("SELECT * FROM claims WHERE owner_id=? ORDER BY created_at DESC LIMIT 100",actor.id)).map(summary);
+export async function listClaims(store:Store,actor:Actor,offset=0):Promise<ClaimSummary[]> {
+  return (await store.all<ClaimRow>("SELECT * FROM claims WHERE owner_id=? ORDER BY created_at DESC, id DESC LIMIT 100 OFFSET ?",actor.id,offset)).map(summary);
 }
-export async function staffQueue(store:Store,actor:Actor) {
+export async function staffQueue(store:Store,actor:Actor,offset=0) {
   requireStaff(actor);
-  const entries=await store.all<ClaimRow>("SELECT * FROM claims ORDER BY created_at DESC LIMIT 100");
+  const entries=await store.all<ClaimRow>("SELECT * FROM claims ORDER BY CASE status WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 ELSE 2 END, created_at DESC, id DESC LIMIT 100 OFFSET ?",offset);
   const counts:Record<ClaimStatus,number>={pending:0,approved:0,rejected:0,recovered:0};
   for(const value of await store.all<{status:ClaimStatus;count:number}>("SELECT status,COUNT(*) AS count FROM claims GROUP BY status"))counts[value.status]=value.count;
   return {claims:entries.map(summary),counts};
@@ -43,8 +47,10 @@ export async function staffDetail(store:Store,actor:Actor,id:string):Promise<Sta
   const media=await store.all<{id:string}>("SELECT i.id FROM intakes i JOIN private_reports p ON p.intake_id=i.id WHERE p.report_id IN (?,?) AND i.object_key IS NOT NULL",lost.id,found.id);
   return {...claimView(claim),lost_report:publicReport(lost),found_report:publicReport(found),private_clue:reference?.private_clue??"",media_ids:media.map(m=>m.id)};
 }
-export async function reviewClaim(store:Store,actor:Actor,id:string,decision:"approved"|"rejected",note:string|null) {
+export async function reviewClaim(store:Store,actor:Actor,id:string,decision:"approved"|"rejected",note:string|null,custodyConfirmed=false) {
   requireStaff(actor);const claim=await row(store,id);
+  if(decision==="approved" && claim.owner_id===actor.id)throw new ApiError(403,"self_review","Another staff member must approve your claim.");
+  if(decision==="approved" && !custodyConfirmed)throw new ApiError(422,"custody_required","Confirm that the physical item is at the help desk before approving.");
   if(claim.status===decision)return claimView(claim);
   if(claim.status!=="pending")throw new ApiError(409,"invalid_transition","Only pending claims can be reviewed.");
   const now=new Date().toISOString();
@@ -61,6 +67,7 @@ export async function reviewClaim(store:Store,actor:Actor,id:string,decision:"ap
         [reserve,claim.lost_report_id,id],[reserve,claim.found_report_id,id],
         ["UPDATE reports SET status='reserved' WHERE id IN (SELECT report_id FROM reservations WHERE claim_id=?) AND status='active'",id],
         ["UPDATE claims SET status='approved',updated_at=? WHERE id=? AND status='pending' AND (SELECT COUNT(*) FROM reservations WHERE claim_id=?)=2",now,id,id],
+        ["INSERT OR IGNORE INTO review_events (id,claim_id,actor_id,action,note,created_at) SELECT ?,?,?,'custody_confirmed','Staff attests the physical item is at the help desk.',? WHERE EXISTS (SELECT 1 FROM claims WHERE id=? AND status='approved')",crypto.randomUUID(),id,actor.id,now,id],
         ["INSERT OR IGNORE INTO review_events (id,claim_id,actor_id,action,note,created_at) SELECT ?,?,?,'approved',?,? WHERE EXISTS (SELECT 1 FROM claims WHERE id=? AND status='approved')",crypto.randomUUID(),id,actor.id,note,now,id],
       ]);
       if(!results[3].meta.changes)throw new ApiError(409,"reports_unavailable","The reports are no longer available for approval.");
@@ -70,6 +77,7 @@ export async function reviewClaim(store:Store,actor:Actor,id:string,decision:"ap
 }
 export async function handover(store:Store,actor:Actor,id:string) {
   requireStaff(actor);const claim=await row(store,id);
+  if(claim.owner_id===actor.id)throw new ApiError(403,"self_handover","Another staff member must confirm your handover.");
   if(claim.status==="recovered")return claimView(claim);
   if(claim.status!=="approved")throw new ApiError(409,"invalid_transition","Approve the claim before confirming handover.");
   const now=new Date().toISOString();

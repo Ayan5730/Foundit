@@ -1,6 +1,6 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {CreateReportSchema,CreateClaimSchema} from "../../shared/api.ts";
+import {CreateReportSchema,CreateClaimSchema,ReviewSchema} from "../../shared/api.ts";
 import {lostReportRequest,foundReportRequest,claimRequest} from "../../shared/examples.ts";
 import {makeBootstrap,isStaff} from "../../lib/server/bootstrap.ts";
 import {failure,ApiError,ok} from "../../lib/server/http.ts";
@@ -21,6 +21,12 @@ test("anonymous bootstrap never grants capabilities; staff role uses exact serve
   assert.equal(isStaff({...user,userId:"staf"},"staff"),false);
   assert.equal(isStaff(user,undefined),false);
   assert.equal(makeBootstrap(user,"staff").capabilities.can_review,true);
+});
+test("approval requires explicit custody attestation while rejection does not",()=>{
+  assert.equal(ReviewSchema.safeParse({decision:"approved",note:null}).success,false);
+  assert.equal(ReviewSchema.safeParse({decision:"approved",note:null,custody_confirmed:false}).success,false);
+  assert.equal(ReviewSchema.safeParse({decision:"approved",note:null,custody_confirmed:true}).success,true);
+  assert.equal(ReviewSchema.safeParse({decision:"rejected",note:null}).success,true);
 });
 test("HTTP envelopes are private/noncacheable and unknown errors do not leak details",async()=>{
   const res=ok({status:"ok"});

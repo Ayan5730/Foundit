@@ -2,8 +2,8 @@ import { z } from "zod";
 import { CreateReportSchema,CreateClaimSchema,ReviewSchema,GuidanceRequestSchema,type Guidance } from "../../shared/api.ts";
 import { ApiError,ok,failure } from "./http.ts";
 import { Store,requireActor,requireStaff,requireOwner,type Actor } from "./store.ts";
-import { reportRow,createReport,ownReports,matchSource,publicReport,hideSharedPreview,type ReportRow } from "./reports.ts";
-import { rankMatches } from "./matching.ts";
+import { reportRow,createReport,ownReports,matchSource,publicReport,hideSharedPreview } from "./reports.ts";
+import { retrieveMatches } from "./retrieval.ts";
 import { createClaim,readClaim,listClaims,staffQueue,staffDetail,reviewClaim,handover } from "./claims.ts";
 import { boundedBody,createIntake,rateLimit } from "./intake.ts";
 import { recoveryGuidance,type ProviderConfig,type Fetcher } from "./providers.ts";
@@ -18,6 +18,11 @@ async function json<T extends z.ZodTypeAny>(request:Request,schema:T):Promise<z.
   }return parsed.data;
 }
 function id(value:string):string{if(!z.string().uuid().safeParse(value).success)throw new ApiError(404,"not_found","Record not found.");return value;}
+function offset(request:Request):number {
+  const raw=new URL(request.url).searchParams.get("offset")??"0";
+  if(!/^\d+$/.test(raw)||!Number.isSafeInteger(Number(raw))||Number(raw)>1000000)throw new ApiError(422,"invalid_offset","Use a nonnegative pagination offset up to 1000000.");
+  return Number(raw);
+}
 export async function handle(request:Request,resources:Resources):Promise<Response>{
   try{
     const path=new URL(request.url).pathname.replace(/^\/api\/v1\/?/,"").split("/").filter(Boolean);
@@ -49,26 +54,25 @@ export async function handle(request:Request,resources:Resources):Promise<Respon
       if(!object)throw new ApiError(404,"not_found","Item preview not found.");
       return new Response(object.body,{headers:{"Content-Type":"image/jpeg","Content-Disposition":'inline; filename="shared-item-preview.jpg"',"Cache-Control":"private, no-store","X-Content-Type-Options":"nosniff","Cross-Origin-Resource-Policy":"same-origin","Content-Security-Policy":"default-src 'none'; sandbox"}});
     }
-    if(method==="GET"&&path.join("/")==="me/reports")return ok(await ownReports(store,requireActor(actor)));
+    if(method==="GET"&&path.join("/")==="me/reports")return ok(await ownReports(store,requireActor(actor),offset(request)));
     if(method==="GET"&&path[0]==="reports"&&path[2]==="matches"&&path.length===3){
       const source=await matchSource(store,requireActor(actor),id(path[1]));
-      const candidates=await store.all<ReportRow>("SELECT * FROM reports WHERE event_id=? AND category=? AND kind<>? AND status='active' ORDER BY created_at DESC LIMIT 500",source.event_id,source.category,source.kind);
-      return ok(rankMatches(publicReport(source),candidates.map(publicReport)));
+      return ok(await retrieveMatches(store,source));
     }
     if(method==="POST"&&path.join("/")==="intake")return ok(await createIntake(request,store,resources.bucket,requireActor(actor),resources.providers,resources.fetcher),201);
     if(method==="POST"&&path.join("/")==="claims"){
       const user=requireActor(actor),input=await json(request,CreateClaimSchema),result=await createClaim(store,user,input);
       return ok(result.claim,result.created?201:200);
     }
-    if(method==="GET"&&path.join("/")==="me/claims")return ok(await listClaims(store,requireActor(actor)));
+    if(method==="GET"&&path.join("/")==="me/claims")return ok(await listClaims(store,requireActor(actor),offset(request)));
     if(method==="GET"&&path[0]==="claims"&&path.length===2)return ok(await readClaim(store,requireActor(actor),id(path[1])));
     if(path[0]==="staff"){
       const user=requireStaff(actor);
-      if(method==="GET"&&path.join("/")==="staff/claims")return ok(await staffQueue(store,user));
+      if(method==="GET"&&path.join("/")==="staff/claims")return ok(await staffQueue(store,user,offset(request)));
       if(path[1]==="claims"&&path[2]){
         const claimId=id(path[2]);
         if(method==="GET"&&path.length===3)return ok(await staffDetail(store,user,claimId));
-        if(method==="POST"&&path[3]==="review"&&path.length===4){const input=await json(request,ReviewSchema);return ok(await reviewClaim(store,user,claimId,input.decision,input.note));}
+        if(method==="POST"&&path[3]==="review"&&path.length===4){const input=await json(request,ReviewSchema);return ok(await reviewClaim(store,user,claimId,input.decision,input.note,input.custody_confirmed));}
         if(method==="POST"&&path[3]==="handover"&&path.length===4){await json(request,z.object({}).strict());return ok(await handover(store,user,claimId));}
       }
     }

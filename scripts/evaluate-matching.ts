@@ -120,7 +120,8 @@ export const cases: Scenario[] = [
     },
     relevant: false,
   },
-  // Held-out cases fixed before running; no weights/thresholds tuned from results.
+  // Historical held-out split. These cases have now been inspected during
+  // debugging and are regression examples, not a fresh validation set.
   { name: "Uppercase color", candidate: { color: "BLUE" }, relevant: true },
   {
     name: "Hyphenated dark-blue",
@@ -281,7 +282,7 @@ if (isMain(import.meta.url)) {
   const phones = phoneRows();
   await saveReport("matching-evaluation.json", {
       scope:
-        "Fixed 24-case synthetic baseline plus 12 targeted phone diagnostics; not real-world accuracy. No AI calls.",
+        "Fixed 24-case synthetic regression baseline plus 12 targeted phone diagnostics; all cases have been inspected. The held_out key preserves the historical split, not fresh validation or real-world accuracy. No AI calls.",
       provider_comparison:
         "Not included in this offline run; use evaluate:providers -- --live for a separate paired text comparison.",
       total: summarize(rows),

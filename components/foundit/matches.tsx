@@ -84,6 +84,7 @@ function MatchesData({ id }: { id: string }) {
         ) : null}
       </div>
       {previewError ? <p className="field-error" role="alert">{previewError}</p> : null}
+      {matches.data.retrieval_complete === false ? <p className="submission-notice" role="status">Only part of this large inventory was checked. Ask the help desk to search remaining records; an empty result is not a complete search.</p> : null}
       {source.status !== "active" ? (
         <div className="submission-notice" role="status">
           {source.status === "recovered"

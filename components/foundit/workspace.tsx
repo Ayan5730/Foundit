@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import type { PublicReport, ClaimSummary } from "@/shared/api";
 import { RequireSession, useSession } from "./session";
 import { useResource } from "@/lib/client/use-resource";
@@ -21,9 +22,10 @@ export function Workspace() {
   );
 }
 function WorkspaceData() {
+  const [reportOffset,setReportOffset]=useState(0),[claimOffset,setClaimOffset]=useState(0);
   const session = useSession(),
-    reports = useResource<PublicReport[]>("/me/reports"),
-    claims = useResource<ClaimSummary[]>("/me/claims");
+    reports = useResource<PublicReport[]>("/me/reports?offset="+reportOffset),
+    claims = useResource<ClaimSummary[]>("/me/claims?offset="+claimOffset);
   const refresh = () => {
     reports.refresh();
     claims.refresh();
@@ -115,6 +117,12 @@ function WorkspaceData() {
           </div>
         )}
       </section>
+      <nav className="workspace-toolbar" aria-label="Report and claim pages">
+        <button disabled={reportOffset===0} onClick={()=>setReportOffset(Math.max(0,reportOffset-100))}>Previous reports</button>
+        <button disabled={reports.data?.length!==100} onClick={()=>setReportOffset(reportOffset+100)}>Next reports</button>
+        <button disabled={claimOffset===0} onClick={()=>setClaimOffset(Math.max(0,claimOffset-100))}>Previous claims</button>
+        <button disabled={claims.data?.length!==100} onClick={()=>setClaimOffset(claimOffset+100)}>Next claims</button>
+      </nav>
       {session.data?.user ? (
         <details className="account-details">
           <summary>My account details</summary>

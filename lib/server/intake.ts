@@ -1,7 +1,8 @@
 import { Buffer } from "node:buffer";
 import { LIMITS, type Intake } from "../../shared/api.ts";
 import { ApiError } from "./http.ts";
-import { assist,type ProviderConfig,type Fetcher } from "./providers.ts";
+import { assist,emptySuggestions,type ProviderConfig,type Fetcher } from "./providers.ts";
+import { validImage } from "./image-validation.ts";
 import { Store,type Actor } from "./store.ts";
 export async function boundedBody(request:Request,maxBytes:number):Promise<ArrayBuffer>{
   if(Number(request.headers.get("content-length"))>maxBytes)throw new ApiError(413,"body_too_large","The request is too large.");
@@ -87,8 +88,10 @@ export async function createIntake(request:Request,store:Store,bucket:R2Bucket|u
   let form:FormData;
   try{form=await new Request(request.url,{method:"POST",headers:{"Content-Type":request.headers.get("content-type")!},body:await boundedBody(request,LIMITS.image_bytes+LIMITS.shared_preview_bytes+65536)}).formData();}
   catch(error){if(error instanceof ApiError)throw error;throw new ApiError(422,"invalid_body","The form data could not be read.");}
-  const allowed=new Set(["kind","description","photo","shared_preview"]);
-  for(const key of form.keys()){if(!allowed.has(key)||form.getAll(key).length!==1)throw new ApiError(422,"invalid_field","Intake accepts kind, description, a photo and an optional shared preview.");}
+  const allowed=new Set(["kind","description","photo","shared_preview","assist"]);
+  for(const key of form.keys()){if(!allowed.has(key)||form.getAll(key).length!==1)throw new ApiError(422,"invalid_field","Intake accepts kind, description, assist, a photo and an optional shared preview.");}
+  const assistance=form.get("assist");
+  if(assistance!==null&&assistance!=="true"&&assistance!=="false")throw new ApiError(422,"invalid_field","assist must be true or false.");
   const kind=form.get("kind"),description=form.get("description"),photo=form.get("photo"),preview=form.get("shared_preview");
   if(!["lost","found"].includes(String(kind))||typeof description!=="string"||description.length>2000)
     throw new ApiError(422,"invalid_intake","Provide kind and a description of up to 2,000 characters.");
@@ -97,7 +100,7 @@ export async function createIntake(request:Request,store:Store,bucket:R2Bucket|u
   if(photo!==null){
     if(typeof photo==="string"||!photo.size||photo.size>LIMITS.image_bytes)throw new ApiError(422,"invalid_photo","Choose an image up to 4 MB.");
     bytes=new Uint8Array(await photo.arrayBuffer());contentType=imageType(bytes);
-    if(!contentType||photo.type!==contentType)throw new ApiError(422,"invalid_photo","Choose a JPG, PNG or WebP image with matching content.");
+    if(!contentType||photo.type!==contentType||!validImage(bytes,contentType))throw new ApiError(422,"invalid_photo","Choose a complete JPG, PNG or WebP image up to 16 megapixels with matching content.");
     if(!bucket)throw new ApiError(503,"storage_unavailable","Image storage is not configured.");
   }
   if(preview!==null){
@@ -111,7 +114,9 @@ export async function createIntake(request:Request,store:Store,bucket:R2Bucket|u
   try{
     if(bytes&&bucket&&objectKey)await bucket.put(objectKey,bytes,{httpMetadata:{contentType:contentType!}});
     if(previewBytes&&bucket&&previewKey)await bucket.put(previewKey,previewBytes,{httpMetadata:{contentType:"image/jpeg"}});
-    const result=await assist(config,description,bytes?"data:"+contentType+";base64,"+Buffer.from(bytes).toString("base64"):undefined,fetcher);
+    const result:Pick<Intake,"suggestions"|"providers">=assistance==="true"
+      ? await assist(config,description,bytes?"data:"+contentType+";base64,"+Buffer.from(bytes).toString("base64"):undefined,fetcher)
+      : {suggestions:emptySuggestions(),providers:{openai:"not_requested",cerebras:"not_requested"}};
     await store.run("INSERT INTO intakes (id,owner_id,object_key,content_type,shared_preview_key,suggestions,providers,created_at) VALUES (?,?,?,?,?,?,?,?)",
       id,actor.id,objectKey,contentType,previewKey,JSON.stringify(result.suggestions),JSON.stringify(result.providers),new Date().toISOString());
     return {id,media_id:objectKey?id:null,...result};

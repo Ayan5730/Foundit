@@ -25,7 +25,7 @@ const form=new FormData();form.set("kind","found");form.set("description","Ficti
 form.set("photo",new File([Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aZV8AAAAASUVORK5CYII=","base64")],"synthetic.png",{type:"image/png"}));
 const intakeResponse=await fetch(new URL("/api/v1/intake",base),{method:"POST",headers,body:form});
 assert.equal(intakeResponse.status,201);const intake=(await intakeResponse.json() as Success<Intake>).data;
-assert.equal(intake.providers.openai,"unavailable");
+assert.equal(intake.providers.openai,"not_requested");
 const lostInput={...lostReportRequest,client_request_id:crypto.randomUUID()};
 const foundInput={...foundReportRequest,client_request_id:crypto.randomUUID(),intake_id:intake.id};
 const lost=(await (await post("reports",lostInput)).json() as Success<PublicReport>).data;

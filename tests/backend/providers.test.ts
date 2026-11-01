@@ -24,6 +24,18 @@ test("Cerebras structured normalization uses bounded request and excludes hidden
   });
   assert.equal(result.providers.cerebras,"available");assert.equal(result.suggestions.color,"Blue");
 });
+test("empty text normalization preserves photo attributes and OpenAI storage is disabled",async()=>{
+  const result=await assist({OPENAI_API_KEY:"mock",OPENAI_MODEL:"mock",CEREBRAS_API_KEY:"mock",CEREBRAS_MODEL:"mock"},"bag","data:image/png;base64,AA==",async(url,init)=>{
+    if(url.includes("openai")) {
+      assert.equal(JSON.parse(String(init?.body)).store,false);
+      return Response.json({output:[{content:[{type:"output_text",text:JSON.stringify({...emptySuggestions(),title:"Blue bag",category:"Bags",color:"Blue",visible_features:["red zipper"]})}]}]});
+    }
+    return Response.json({choices:[{message:{content:JSON.stringify(emptySuggestions())}}]});
+  });
+  assert.equal(result.providers.cerebras,"available");assert.equal(result.suggestions.title,"Blue bag");
+  assert.equal(result.suggestions.category,"Bags");assert.equal(result.suggestions.color,"Blue");
+  assert.deepEqual(result.suggestions.visible_features,["red zipper"]);
+});
 test("Qwen disables reasoning for bounded structured item suggestions",async()=>{
   const result=await assist({CEREBRAS_API_KEY:"mock",CEREBRAS_MODEL:"qwen-3.8-27b"},"navy bag",undefined,async(_,init)=>{
     const body=JSON.parse(String(init?.body));

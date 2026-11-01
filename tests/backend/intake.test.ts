@@ -4,10 +4,12 @@ import {readFileSync} from "node:fs";
 import {database,bucket} from "./helpers.ts";
 import {handle,type Resources} from "../../lib/server/application.ts";
 import {sanitizedSharedPreview,validSharedPreview} from "../../lib/server/intake.ts";
+import {validImage} from "../../lib/server/image-validation.ts";
 const actor={id:"uploader",staff:false};
 const previewBytes=new Uint8Array(readFileSync(new URL("../fixtures/fictional-bag-preview.jpg",import.meta.url)));
 const canvasPreviewBytes=new Uint8Array(readFileSync(new URL("../fixtures/browser-canvas-preview.jpg",import.meta.url)));
 const progressivePreviewBytes=new Uint8Array(readFileSync(new URL("../fixtures/progressive-preview.jpg",import.meta.url)));
+const pngBytes=new Uint8Array(readFileSync(new URL("../../scripts/fixtures/fictional-bag.png",import.meta.url)));
 function intake(photo?:File,extra?:[string,string],sharedPreview?:File):Request {
   const form=new FormData();form.set("kind","found");form.set("description","Blue bag");
   if(photo)form.set("photo",photo);if(extra)form.set(...extra);if(sharedPreview)form.set("shared_preview",sharedPreview);
@@ -16,19 +18,44 @@ function intake(photo?:File,extra?:[string,string],sharedPreview?:File):Request 
 test("manual/degraded intake persists owned private photo without configured AI or fake suggestions",async()=>{
   const {db,d1}=database(),images=bucket();const resources:Resources={db:d1,bucket:images.binding,actor,providers:{}};
   try{
-    const png=new File([new Uint8Array([137,80,78,71,13,10,26,10])],"test.png",{type:"image/png"});
+    const png=new File([pngBytes],"test.png",{type:"image/png"});
     const response=await handle(intake(png),resources);assert.equal(response.status,201);
     const body=await response.json() as {data:{id:string;media_id:string;providers:{openai:string;cerebras:string};suggestions:{title:null}}};
-    assert.equal(body.data.suggestions.title,null);assert.equal(body.data.providers.openai,"unavailable");assert.equal(images.objects.size,1);
+    assert.equal(body.data.suggestions.title,null);assert.equal(body.data.providers.openai,"not_requested");assert.equal(images.objects.size,1);
     assert.equal(body.data.id,body.data.media_id);
     const read=await handle(new Request("https://foundit.test/api/v1/media/"+body.data.media_id),resources);
-    assert.equal(read.status,200);assert.equal((await read.arrayBuffer()).byteLength,8);
+    assert.equal(read.status,200);assert.equal((await read.arrayBuffer()).byteLength,pngBytes.length);
+  }finally{db.close();}
+});
+test("provider requests require explicit assistance consent even when credentials exist",async()=>{
+  const {db,d1}=database(),images=bucket();let calls=0;
+  const resources:Resources={db:d1,bucket:images.binding,actor,providers:{CEREBRAS_API_KEY:"mock",CEREBRAS_MODEL:"mock"},fetcher:async()=>{calls++;throw new Error("mock unavailable");}};
+  try {
+    const photo=new File([pngBytes],"test.png",{type:"image/png"});
+    const preview=new File([canvasPreviewBytes],"preview.jpg",{type:"image/jpeg"});
+    assert.equal((await handle(intake(photo,undefined,preview),resources)).status,201);
+    assert.equal(calls,0);
+    assert.equal((await handle(intake(undefined,["assist","false"]),resources)).status,201);
+    assert.equal(calls,0);
+    assert.equal((await handle(intake(photo,["assist","true"],preview),resources)).status,201);
+    assert.equal(calls,1);
+    assert.equal((await handle(intake(undefined,["assist","yes"]),resources)).status,422);
+  }finally{db.close();}
+});
+test("intake rejects signature-only, truncated and excessive-dimension images",async()=>{
+  const {db,d1}=database(),images=bucket();const resources:Resources={db:d1,bucket:images.binding,actor,providers:{}};
+  try {
+    const oversized=pngBytes.slice();new DataView(oversized.buffer).setUint32(16,20000);
+    for(const bytes of [pngBytes.slice(0,8),pngBytes.slice(0,-1),oversized]) {
+      assert.equal((await handle(intake(new File([bytes],"test.png",{type:"image/png"})),resources)).status,422);
+    }
+    assert.equal(images.objects.size,0);
   }finally{db.close();}
 });
 test("shared preview requires a private photo and is stored as a separate object",async()=>{
   const {db,d1}=database(),images=bucket();const resources:Resources={db:d1,bucket:images.binding,actor,providers:{}};
   try{
-    const original=new File([new Uint8Array([137,80,78,71,13,10,26,10])],"private.png",{type:"image/png"});
+    const original=new File([pngBytes],"private.png",{type:"image/png"});
     const preview=new File([canvasPreviewBytes],"preview.jpg",{type:"image/jpeg"});
     assert.equal((await handle(intake(undefined,undefined,preview),resources)).status,422);
     assert.equal((await handle(intake(original,undefined,new File(["bad"],"preview.jpg",{type:"image/jpeg"})),resources)).status,422);
@@ -43,6 +70,7 @@ test("shared preview requires a private photo and is stored as a separate object
   }finally{db.close();}
 });
 test("browser canvas color profile is removed and multi-scan JPEG is accepted",()=>{
+  for(const bytes of [previewBytes,canvasPreviewBytes,progressivePreviewBytes])assert.equal(validImage(bytes,"image/jpeg"),true);
   assert.equal(Buffer.from(canvasPreviewBytes).includes(Buffer.from("ICC_PROFILE")),true);
   assert.equal(validSharedPreview(canvasPreviewBytes),true);
   assert.ok(progressivePreviewBytes.reduce((count,byte,index)=>count+(byte===255&&progressivePreviewBytes[index+1]===218?1:0),0)>1);

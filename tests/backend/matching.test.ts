@@ -39,8 +39,42 @@ test("an explicit phone cannot match headphones just because color, place and ti
     description:"Padded earcups and a folding headband",visible_features:["padded earcups","folding headband"]};
   assert.equal(scorePair(phone,headphones),null);
   assert.ok(scorePair(phone,{...headphones,title:"Mobile phone",description:"Clear case and cracked corner"}));
-  assert.ok(scorePair({...phone,title:"Earbuds"},{...headphones,title:"AirPods"}));
-  // Unknown or mixed titles do not justify a hard exclusion.
-  assert.ok(scorePair(phone,{...headphones,title:"Electronic item"}));
-  assert.ok(scorePair(phone,{...headphones,title:"Phone with headphones"}));
+  assert.ok(scorePair({...phone,title:"Earbuds"},{...phone,id:"earbuds",kind:"found",title:"AirPods"}));
+  // Unknown or mixed titles require actual shared visible details.
+  assert.equal(scorePair(phone,{...headphones,title:"Electronic item"}),null);
+  assert.equal(scorePair(phone,{...headphones,title:"Phone with headphones"}),null);
+  assert.ok(scorePair(phone,{...phone,id:"generic",kind:"found",title:"Electronic item"}));
+});
+
+test("negated, mixed and uncertain color text is never reduced to a single color",()=>{
+  for(const color of ["not blue","blue-green","blue and red","maybe navy","unknown","bluetooth"])
+    assert.equal(canonicalColor(color),null,color);
+  assert.equal(canonicalColor(" Navy blue "),"blue");
+  assert.equal(canonicalColor("light-grey"),"gray");
+});
+
+test("unknown areas, generic words and color alone do not manufacture support",()=>{
+  const unknown=scorePair({...lost,location:"Other"},{...found,location:"Other"});
+  assert.equal(unknown?.reasons.find(reason=>reason.factor==="location")?.assessment,"unknown");
+  const source={...lost,title:"Black phone",category:"Electronics" as const,color:"black",description:"Black plastic case",visible_features:[]};
+  assert.equal(scorePair(source,{...source,id:"generic",kind:"found"}),null);
+  const keys={...source,title:"Keys",category:"Keys" as const,description:"Keys",color:null};
+  assert.equal(scorePair(keys,{...keys,id:"generic-keys",kind:"found"}),null);
+  assert.equal(scorePair(lost,{...found,title:"Blue satchel",description:"Plain nylon",visible_features:["nylon"]}),null);
+});
+
+test("explicitly denied features and conflicting known colors cannot support a match",()=>{
+  const source={...lost,description:"Canvas silver zipper",visible_features:["canvas","silver zipper"]};
+  const denied={...found,description:"Not canvas, no silver zipper",visible_features:[]};
+  assert.equal(scorePair(source,denied),null);
+  assert.equal(scorePair(denied,source),null);
+  assert.equal(scorePair(lost,{...found,color:"red"}),null);
+  assert.ok(!featureTokens({...found,description:"No zipper",visible_features:[]}).has("zipper"));
+});
+
+test("duplicate report IDs cannot crowd out distinct candidates",()=>{
+  const second={...found,id:"second"},third={...found,id:"third"};
+  const result=rankMatches(lost,[found,found,found,second,third]);
+  assert.equal(result.candidates.length,3);
+  assert.equal(new Set(result.candidates.map(match=>match.candidate.id)).size,3);
 });
