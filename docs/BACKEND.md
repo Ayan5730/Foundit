@@ -46,6 +46,7 @@ After setup PR merge, branch backend/core from main. Deliver shared contract/exa
 - Eight-table Drizzle schema and initial schema-only migration: reports/private references, intakes/private media, claims, reservations, review events, rate limits, guidance cache.
 - Report/claim request replay is owner-scoped; changed payload with reused ID returns409. Public report and claimant/staff serializers are separate.
 - Matching uses actual normalized attributes and documented weights. Scores remain heuristic. Atomic D1 batches and unique report reservations protect approval; only confirmed handover completes recovery.
+- A precision guard excludes an Electronics candidate when both titles clearly name different item types (for example, phone versus headphones). Generic or mixed titles keep the original score; the 24-case bag baseline is unchanged. Broader item evaluation is still needed.
 - Provider adapters use bounded calls and validated structured responses; private proof is never passed into the public assistance pipeline. Exa guidance is source-restricted, cited and cached.
 - All 18 backend tests and 5 existing frontend tests pass. TypeScript and production builds pass. The generated migration was applied once to local D1; SQL-adapter tests load that same migration.
 - Local HTTP smoke passed development sign-in, report create/readback, replay, computed match (sample score 99), R2 upload/read, claim creation, nonstaff review denial, and anonymous media denial.

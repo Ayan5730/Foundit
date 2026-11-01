@@ -31,3 +31,16 @@ test("missing appearance clues never manufacture a match; ordering and top-three
   assert.equal(a.candidates.length,3);assert.deepEqual(a,b);
   assert.ok(a.score_label.includes("not a probability"));
 });
+
+test("an explicit phone cannot match headphones just because color, place and time agree",()=>{
+  const phone:PublicReport={...lost,id:"phone",category:"Electronics",kind:"lost",title:"Black smartphone",
+    color:"black",description:"Clear case with a cracked corner",visible_features:["clear case","cracked corner"]};
+  const headphones:PublicReport={...phone,id:"headphones",kind:"found",title:"Black headphones",
+    description:"Padded earcups and a folding headband",visible_features:["padded earcups","folding headband"]};
+  assert.equal(scorePair(phone,headphones),null);
+  assert.ok(scorePair(phone,{...headphones,title:"Mobile phone",description:"Clear case and cracked corner"}));
+  assert.ok(scorePair({...phone,title:"Earbuds"},{...headphones,title:"AirPods"}));
+  // Unknown or mixed titles do not justify a hard exclusion.
+  assert.ok(scorePair(phone,{...headphones,title:"Electronic item"}));
+  assert.ok(scorePair(phone,{...headphones,title:"Phone with headphones"}));
+});

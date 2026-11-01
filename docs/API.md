@@ -39,6 +39,7 @@ GET /media/{id} -> private image bytes (uploader/staff)
 POST /recovery-guidance -> Guidance
 
 Approval reserves both reports; only confirmed handover marks recovered. Reports/claims are not proof of identity. Match score is a heuristic ranking signal.
+Within Electronics, a candidate with a clearly different item type in each title is excluded before scoring. When either title is generic or names multiple types, the existing score applies. This does not establish ownership or overall matching accuracy.
 
 Handover accepts an empty JSON object {}. Review accepts {decision:"approved"|"rejected",note:string|null}. Repeating an identical review/handover returns the existing state; an incompatible transition returns409. Concurrent approval conflicts also return409. Approval does not automatically reject other pending claims.
 Owner lists and staff queue return at most 100 newest entries; matching considers up to 500 newest active same-event/category candidates and returns top 3. Public report GET remains anonymous-safe. Staff claim detail has its own endpoint; GET /claims/{id} is claimant-only.
