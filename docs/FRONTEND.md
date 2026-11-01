@@ -2,6 +2,8 @@
 
 Status: merged in PR #4, continuing the existing shell/form. Ayan's shared/api.ts contract is consumed unchanged. RELEASE.md tracks the remaining live/hosted gates and repeatable verification commands.
 
+Two-provider demo update: when an active lost report has no candidate, the browser shows a direct link to Rapid Metro's official lost-and-found page. This path needs no Exa key or live search call. The existing backend guidance endpoint and shared contract are unchanged pending Ayan's review. OpenAI and Cerebras still need live account checks before their help can be claimed in a demo.
+
 ## Connected behavior
 - Server-generated ChatGPT sign-in/out anchors; bootstrap identity, choices, capabilities and account status. Staff screens are hidden from nonstaff; backend permissions remain authoritative.
 - Existing lost/found form now uploads optional private photos, requests explicit editable AI suggestions, maps confirmed fields to the shared schema, submits and reads back actual reports.
@@ -9,7 +11,7 @@ Status: merged in PR #4, continuing the existing shell/form. Ayan's shared/api.t
 - Stable client request IDs survive identical retries within the page. Drafts/evidence remain in memory only; leaving/reloading clears an unsaved draft. No fake success, browser role headers, localStorage or provider keys.
 - My reports/recovery requests; real top-three candidates and supporting/conflicting/unknown reasons; private claim submission; claimant ticket/status.
 - Protected staff queue, private clue/evidence/photo comparison, explicit approve/reject confirmation and separate confirmed handover. Counts refresh after changes.
-- No-match lost reports can explicitly request official recovery guidance. Available, no_sources and unavailable states use the backend response.
+- No-match active lost reports display a direct link to the official Rapid Metro lost-and-found page; the browser no longer requests the backend guidance endpoint.
 - Request cancellation, bounded timeouts, field errors, retry controls, empty states and sign-in gates. Original photo object URLs are revoked on replacement/removal/unmount.
 - The agreed intake endpoint also runs configured providers when a photo is submitted. The upload hint/review explicitly disclose that processing; private ownership clues are excluded and suggestions never overwrite submitted fields. Photo-free manual submission makes no intake/provider call unless assistance was explicitly requested.
 - The found-item flow asks the finder to hand the physical item to staff and states that a saved report does not establish custody. Staff approval now requires an explicit physical-custody checkbox in the UI; the backend still enforces staff authorization. The checkbox is not a persisted custody record. The sign-in gate gives honest guidance for someone who lost their sign-in device; assisted online claims are not implemented.
@@ -18,7 +20,7 @@ Status: merged in PR #4, continuing the existing shell/form. Ayan's shared/api.t
 - Typecheck, production build, 9 frontend tests and 18 backend tests passed before final publication checks.
 - Local browser: sign-in, create lost report, reload/readback, actual 91/100 candidate, private claim, staff comparison and private photo, approval/reserved state, separate handover/recovered ticket passed.
 - Found form: fictional photo upload, honest AI-unavailable result, retained draft, manual submission, public readback without private clue and genuine no-match state passed.
-- Guidance-unavailable state passed with credentials absent. No sample source cards or synthetic AI responses are substituted.
+- The earlier backend-guidance unavailable state passed with credentials absent. For the two-provider update, headless Edge loaded the signed-in fictional no-match keyring in local development and rendered the official Rapid Metro link without an unavailable message; the desktop screenshot was inspected. No sample source cards or synthetic AI responses are substituted.
 - Earlier checkpoint verified error/review focus, edit preservation, photo replacement/removal/corrupt-file rejection and keyboard/native datetime controls.
 - Development hot reload briefly produced a stale context error while modules were being formatted; full reload restored the provider. Final build/hosted checks determine release behavior.
 - Final built Worker: home-to-form navigation and anonymous sign-in gate passed with no captured browser errors. Bootstrap remained anonymous/nonstaff, owner records returned 401, and the recovered report persisted across the development-to-production restart without private fields.

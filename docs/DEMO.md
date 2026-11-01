@@ -5,12 +5,12 @@
 |---|---|
 | Shared foundation and contract | Merged; typed schemas/examples and health/bootstrap exist |
 | Backend recovery workflow | 16 API method/path combinations; 18 workflow/provider tests plus 5 release-tool tests passing |
-| Connected frontend | Merged in PR #4; real forms, matching, tickets, staff actions and guidance states |
+| Connected frontend | Merged in PR #4; real forms, matching, tickets, staff actions and a direct official guidance link |
 | Local persistence and recovery | Browser report readback after reload; approval reserves; handover recovers |
-| Partner integrations | Adapters and mocked/failure tests exist; live credentials/configuration still needed |
+| Partner integrations | OpenAI/Cerebras adapters and mocked/failure tests exist; live credentials/configuration still needed. The two-provider demo does not use Exa |
 | Labelled evaluation | 24 offline synthetic scenarios; limitations disclosed in EVALUATION.md |
 | Hosted candidate | Registered owner-private Site; publication result must be verified separately |
-| Distinct users, live sources, recording | Pending hosted verification and rehearsal |
+| Distinct users, live provider calls, recording | Pending hosted verification and rehearsal |
 | Customer/business validation | No organizer interview or willingness-to-pay evidence supplied |
 
 Follow RELEASE.md for the remaining owner steps and exact commands. Live checks and synthetic paired evaluation are ready to run after credentials are configured; their presence is not evidence of a successful live call.
@@ -22,12 +22,12 @@ Shared API changes require agreement. Do not make browser workarounds for backen
 
 ## Rehearsal preparation
 1. Verify checks in SETUP.md and deploy the exact integration commit privately.
-2. Configure server-only partner secrets/model IDs through supported key/runtime tools; never chat, commit or expose them in browser variables.
+2. Configure server-only OpenAI and Cerebras secrets/model IDs through supported key/runtime tools; never chat, commit or expose them in browser variables.
 3. Sign in on the hosted Site. Read each person's own Site ID through My account details, then configure the authorized staff allowlist. Do not reuse local_seedy.
 4. Use separate staff/finder and attendee sessions. Prove attendee staff denial and changed-ID evidence/image denial, not just hidden buttons.
 5. Create fresh FICTIONAL DEMO reports through the UI. Do not clear unrelated records or populate migrations. Previously recovered reports will not match again; use new reports for each rehearsal.
 6. Example pair: found navy canvas laptop bag, silver zipper, Main Hall, 10:30 IST; lost dark blue backpack with silver zip, same area, 10:15 IST. Finder records a fictional triangle inside the pocket privately; claimant supplies it privately only after viewing the public candidate. Use an item-only fictional photo without people/documents.
-7. Prepare one unrelated missing keyring as a no-match case. Demonstrate real Exa sources if available; otherwise show the unavailable state and disclose it.
+7. Prepare one unrelated missing keyring as a no-match case. Open the official Rapid Metro lost-and-found link shown in the app. Explain that FoundIt does not search the operator's inventory.
 8. Measure live request duration and returned provider usage without recording secrets/private payloads. Do not infer billable cost from local matcher timing.
 9. After checking the private build, ask the owner to choose the public demonstration audience. Test the exact final URL on a second device.
 10. Record a real successful hosted run as backup. A local mock-account recording must be labelled local and is not hosted authorization evidence.
@@ -36,11 +36,11 @@ Shared API changes require agreement. Do not make browser workarounds for backen
 0:00–0:40: “At busy events, descriptions differ and similar items can be handed to the wrong person.” Finder uploads item-only photo, explicitly requests suggestions, checks/edits them and saves.
 0:40–1:10: Attendee submits differently worded loss. Open actual candidate, score and evidence; explain a similarity score is not proof.
 1:10–2:15: Submit private detail. Switch to staff account; compare the earlier finder clue and claimant evidence. Approve: reserved. Confirm physical collection separately: recovered.
-2:15–2:40: Show no-match report and actual official guidance (or truthful provider outage).
+2:15–2:40: Show the no-match report and its direct link to Rapid Metro's official lost-and-found page.
 2:40–3:00: State measured synthetic results and the organizer-paid event-package hypothesis; attendees use it free. Name the current verification gaps.
 
 ## Judge questions and defensible answers
-- Why three partners? OpenAI extracts visible image attributes; Cerebras normalizes public descriptions/one clarification; Exa retrieves official recovery instructions. Demonstrate actual configured calls before claiming live use.
+- Why two APIs? OpenAI suggests visible image attributes; Cerebras suggests editable public descriptions and one clarification. Rapid Metro already publishes its lost-and-found procedure, so this one-operator demo links to the official page directly. Demonstrate actual configured calls before claiming live use.
 - Why is this safer than a group chat? Public details support discovery; an earlier private clue and staff review support ownership checks. Neither AI nor a score approves ownership.
 - Accuracy? 12/13 positive synthetic queries appeared in the top three; 3/11 negative queries still produced candidates. Small artificial evaluation, not real recovery accuracy.
 - What fails offline? Existing-record workflow works locally; live provider services need connectivity. Manual description remains possible during provider outages.

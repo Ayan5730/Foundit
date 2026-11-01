@@ -23,14 +23,16 @@ Known limits exposed:
 ## Targeted phone diagnostics
 `npm run evaluate:matching` now also reports 12 additional fictional phone/electronics scenarios under `targeted_phone`. These cases were written after discovering that a black phone and black headphones could be suggested together. They are developer-authored diagnostics, not an independent holdout or a measured field accuracy rate. The original 24 rows and their split remain unchanged so that provider comparisons still use the same baseline.
 
-On main commit 079c156 before the proposed Electronics item-type guard, the correct candidate appeared in the top three for 5/5 positive phone scenarios. All 7 deliberately challenging negative queries received a suggestion, with 9 false suggestions in total. Different electronics (headphones, laptop, tablet), a different black phone, a color conflict, a long time gap and a generic device all exposed limits. The separate matching-quality PR addresses only clearly different named Electronics types; it does not resolve all false suggestions. Rerun the script after that PR is reviewed and merged rather than carrying these old counts forward as current results.
+On main commit 079c156 before the Electronics item-type guard, the correct candidate appeared in the top three for 5/5 positive phone scenarios. All 7 deliberately challenging negative queries received a suggestion, with 9 false suggestions in total.
+
+After the matching-quality PR merged, the 1 November rerun on main commit e2f6971 still retrieved 5/5 positive phone scenarios. Four of 7 deliberately challenging negative queries received a suggestion, with 5 false suggestions total. The guard excludes clearly different named Electronics types such as phone versus headphones; different black phones, color conflicts, long time gaps and generic devices still expose limits. These developer-authored diagnostics are not an independent field accuracy rate.
 
 These cases show why a 0-100 similarity score must never be read as an ownership probability. A useful next evaluation needs real desk inventory and independently labelled reports, including similarly described phones, before changing broad thresholds or claiming precision.
 
 The UI displays the actual conflicting/unknown signals and requires private human verification. These results do not authorize recovery or establish real-world precision. Ayan should propose any scoring-rule change, agree on its impact, and evaluate against a fresh held-out set rather than tuning these results away.
 
 ## What is not measured
-Live OpenAI/Cerebras normalization versus raw input, Exa source quality, provider latency/token usage/cost, large-inventory ranking and real attendee recovery outcomes remain unmeasured. The offline runner made zero provider calls.
+Live OpenAI/Cerebras normalization versus raw input, provider latency/token usage/cost, large-inventory ranking and real attendee recovery outcomes remain unmeasured. The offline runner made zero provider calls. The two-provider demo links directly to the official Rapid Metro page; the optional backend Exa adapter is outside the demo and its live source quality remains unmeasured.
 The paired text-normalization runner is now available as `npm run evaluate:providers -- --live`; without --live it makes no calls and reports not_run. It reuses the fixed cases/scoring in both arms and records actual numeric usage and durations. See RELEASE.md for configuration, call limits and the distinction between synthetic suggestions and user confirmation. Tooling availability is not a measured improvement.
 Per-scenario matcher timings are process-only observations, including cold start variation; they are not HTTP/provider latency or a service-level promise.
 

@@ -8,7 +8,7 @@ export function isMain(url: string): boolean {
 }
 
 export function providerConfig(): ProviderConfig {
-  const names = ["OPENAI_API_KEY", "OPENAI_MODEL", "CEREBRAS_API_KEY", "CEREBRAS_MODEL", "EXA_API_KEY"] as const;
+  const names = ["OPENAI_API_KEY", "OPENAI_MODEL", "CEREBRAS_API_KEY", "CEREBRAS_MODEL"] as const;
   return Object.fromEntries(names.map(name => [name, process.env[name]?.trim() || undefined]));
 }
 

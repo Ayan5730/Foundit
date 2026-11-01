@@ -4,6 +4,7 @@ import { configuration, isMain, measuredFetcher, providerConfig, saveReport } fr
 
 export async function checkProviders(config: ProviderConfig, live = false, upstream?: Fetcher) {
   const configured = configuration(config);
+  const required = ["openai", "cerebras"] as const;
   const measured = measuredFetcher(upstream);
   const results: Record<string, { status: string; source_count?: number }> = {};
   if (live) {
@@ -24,10 +25,12 @@ export async function checkProviders(config: ProviderConfig, live = false, upstr
       results.exa = { status: result.status, source_count: result.sources.length };
     }
   }
-  const missing = Object.entries(configured).filter(([, ready]) => !ready).map(([name]) => name);
+  const missing = required.filter(name => !configured[name]);
   return {
     checked_at: new Date().toISOString(),
     mode: live ? "live_synthetic_connection_checks" : "configuration_only_no_calls",
+    required_providers: required,
+    optional_providers: ["exa"],
     status: !live ? "not_run" : missing.length ? "blocked_missing_configuration"
       : Object.values(results).every(result => result.status === "available") ? "passed" : "failed",
     configured, missing, results, requests: measured.requests,
