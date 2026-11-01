@@ -20,8 +20,8 @@ export function StaffWorkspace({ claimId }: { claimId?: string }) {
         <p className="section-kicker">Authorized help-desk staff</p>
         <h1>Make the right return.</h1>
         <p>
-          Compare private evidence before approving. Confirm handover only after
-          the item is collected.
+          Compare private evidence and confirm the item is at the help desk
+          before approving. Confirm handover only after the item is collected.
         </p>
       </div>
       <RequireSession staff>
@@ -78,7 +78,7 @@ function StaffData({ claimId }: { claimId?: string }) {
         </aside>
         <div>
           {claimId ? (
-            <StaffDetail id={claimId} onChange={queue.refresh} />
+            <StaffDetail key={claimId} id={claimId} onChange={queue.refresh} />
           ) : (
             <EmptyState
               title="Choose a ticket to review."
@@ -98,13 +98,14 @@ function StaffDetail({ id, onChange }: { id: string; onChange: () => void }) {
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [success, setSuccess] = useState(""),
-    [note, setNote] = useState("");
+    [note, setNote] = useState(""),
+    [custodyConfirmed, setCustodyConfirmed] = useState(false);
   const confirmRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (action) confirmRef.current?.focus();
   }, [action]);
   async function confirm() {
-    if (!action) return;
+    if (!action || (action === "approved" && !custodyConfirmed)) return;
     setBusy(true);
     setError("");
     try {
@@ -124,6 +125,7 @@ function StaffDetail({ id, onChange }: { id: string; onChange: () => void }) {
             : "Claim rejected.",
       );
       setAction(null);
+      setCustodyConfirmed(false);
       setNote("");
       detail.refresh();
       onChange();
@@ -194,7 +196,10 @@ function StaffDetail({ id, onChange }: { id: string; onChange: () => void }) {
             <button
               className="button button-primary"
               disabled={busy}
-              onClick={() => setAction("approved")}
+              onClick={() => {
+                setCustodyConfirmed(false);
+                setAction("approved");
+              }}
             >
               Approve claim
             </button>
@@ -235,13 +240,24 @@ function StaffDetail({ id, onChange }: { id: string; onChange: () => void }) {
             {action === "handover"
               ? "Confirm only after physical collection. Both reports will be marked recovered."
               : action === "approved"
-                ? "Confirm that you compared the private evidence. Both reports will be reserved; collection is a separate step."
+                ? "Compare the private evidence and check that the physical item is at the help desk. Approval reserves both reports; collection is a separate step."
                 : "The claim will be marked rejected. Its evidence remains private."}
           </p>
+          {action === "approved" ? (
+            <label className="custody-confirmation">
+              <input
+                type="checkbox"
+                checked={custodyConfirmed}
+                onChange={(event) => setCustodyConfirmed(event.target.checked)}
+                disabled={busy}
+              />
+              I have confirmed the physical item is at the help desk.
+            </label>
+          ) : null}
           <div className="workspace-toolbar">
             <button
               className="button button-primary"
-              disabled={busy}
+              disabled={busy || (action === "approved" && !custodyConfirmed)}
               onClick={confirm}
             >
               {busy ? "Saving…" : "Confirm action"}
@@ -249,7 +265,10 @@ function StaffDetail({ id, onChange }: { id: string; onChange: () => void }) {
             <button
               className="text-action"
               disabled={busy}
-              onClick={() => setAction(null)}
+              onClick={() => {
+                setAction(null);
+                setCustodyConfirmed(false);
+              }}
             >
               Cancel
             </button>

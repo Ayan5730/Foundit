@@ -168,10 +168,56 @@ export const cases: Scenario[] = [
     relevant: true,
   },
 ];
-export function scenarioReports(item: Scenario) {
-  const query = { ...base, ...item.query };
+// A separate diagnostic set added after the broad Electronics false positive
+// was discovered. It is developer-authored and must never be called held out.
+export const phoneBase: PublicReport = {
+  ...base,
+  title: "Black smartphone",
+  category: "Electronics",
+  color: "black",
+  description: "Clear case with a cracked corner",
+  visible_features: ["clear case", "cracked corner"],
+};
+export const phoneCases: Scenario[] = [
+  { name: "Same phone, visible case details", relevant: true },
+  { name: "iPhone / mobile phone wording", query: { title: "iPhone" }, candidate: { title: "Mobile phone" }, relevant: true },
+  { name: "Missing color but matching case", query: { title: "Smartphone", color: null }, candidate: { title: "Mobile phone", color: null }, relevant: true },
+  { name: "Different area, same case details", candidate: { location: "Entrance" }, relevant: true },
+  {
+    name: "Phone versus headphones, same color and time", relevant: false,
+    candidate: { title: "Black headphones", description: "Padded earcups", visible_features: ["padded earcups"] },
+  },
+  {
+    name: "Phone versus laptop, same color and time", relevant: false,
+    candidate: { title: "Black laptop", description: "Silver keyboard", visible_features: ["silver keyboard"] },
+  },
+  {
+    name: "Phone versus tablet, same color and time", relevant: false,
+    candidate: { title: "Black tablet", description: "Folding cover", visible_features: ["folding cover"] },
+  },
+  {
+    name: "Two black phones with unrelated case details", relevant: false,
+    candidate: { title: "Black phone", description: "Red silicone case", visible_features: ["red silicone case"] },
+  },
+  { name: "Red phone with otherwise identical details", relevant: false, candidate: { title: "Red smartphone", color: "red" } },
+  { name: "Unrelated lookalike found five days later", relevant: false, candidate: { occurred_at: "2026-11-06T04:30:00Z" } },
+  {
+    name: "Generic black device, no identifying overlap", relevant: false,
+    candidate: { title: "Electronic item", description: "Black device", visible_features: ["plastic shell"] },
+  },
+  {
+    name: "True phone among headphones and another phone", relevant: true,
+    candidate: { title: "Mobile phone" },
+    distractors: [
+      { title: "Headphones", description: "Padded earcups", visible_features: ["padded earcups"] },
+      { title: "Phone", description: "Red silicone case", visible_features: ["red silicone case"] },
+    ],
+  },
+];
+export function scenarioReports(item: Scenario, reference: PublicReport = base) {
+  const query = { ...reference, ...item.query };
   const candidate = {
-    ...base,
+    ...reference,
     id: "candidate",
     kind: "found" as const,
     ...item.candidate,
@@ -183,12 +229,12 @@ export function scenarioReports(item: Scenario) {
   }));
   return { query, candidates: [candidate, ...distractors] };
 }
-export function evaluateScenario(item: Scenario, index: number, query: PublicReport, candidates: PublicReport[]) {
+export function evaluateScenario(item: Scenario, index: number, query: PublicReport, candidates: PublicReport[], split?: string) {
   const start = performance.now();
   const result = rankMatches(query, candidates);
   return {
     case: index + 1,
-    split: index < 16 ? "development" : "held_out",
+    split: split ?? (index < 16 ? "development" : "held_out"),
     name: item.name,
     relevant: item.relevant,
     returned: result.candidates.map((row) => ({
@@ -210,6 +256,12 @@ export function baselineRows() {
     return evaluateScenario(item, index, query, candidates);
   });
 }
+export function phoneRows() {
+  return phoneCases.map((item, index) => {
+    const { query, candidates } = scenarioReports(item, phoneBase);
+    return evaluateScenario(item, index, query, candidates, "targeted_phone");
+  });
+}
 export function summarize(subset: ReturnType<typeof baselineRows>) {
   const positives = subset.filter((row) => row.relevant).length;
   return {
@@ -225,14 +277,20 @@ export function summarize(subset: ReturnType<typeof baselineRows>) {
 }
 if (isMain(import.meta.url)) {
   const rows = baselineRows();
+  const phones = phoneRows();
   await saveReport("matching-evaluation.json", {
       scope:
-        "24 synthetic offline scenarios; not real-world accuracy. Fixed heuristic, no AI calls.",
+        "Fixed 24-case synthetic baseline plus 12 targeted phone diagnostics; not real-world accuracy. No AI calls.",
       provider_comparison:
         "Not measured: credentials and live normalization outputs unavailable.",
       total: summarize(rows),
       development: summarize(rows.slice(0, 16)),
       held_out: summarize(rows.slice(16)),
+      targeted_phone: {
+        scope: "12 additional developer-authored diagnostic scenarios; added after finding an Electronics false positive, not held out or real-world accuracy.",
+        summary: summarize(phones),
+        rows: phones,
+      },
       provider_calls: 0,
       rows,
   });

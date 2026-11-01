@@ -13,14 +13,14 @@ npm run evaluate:providers
 npm run build
 ```
 
-The first evaluation is the fixed 24-case offline baseline. The provider commands default to **not_run**, make zero external calls and cannot claim live success. Reports are written under ignored outputs/. GitHub Actions runs typecheck, tests, the offline baseline and build; it never invokes live providers or uses account cookies.
+The first evaluation retains the fixed 24-case offline baseline and adds 12 targeted phone diagnostics. The provider commands default to **not_run**, make zero external calls and cannot claim live success. Reports are written under ignored outputs/. GitHub Actions runs typecheck, tests, the offline evaluation and build; it never invokes live providers or uses account cookies.
 
 ## Final owner steps, in order
 
-1. Review the completion PR, including its CI results, and merge after review. Keep GitHub and Sites publishing separate.
+1. Review the help-desk readiness PR and the separate matching-quality PR, including CI results. Ayan reviews the matching rule's precision/recall tradeoff before it is merged. Keep GitHub and Sites publishing separate.
 2. Add provider keys/model IDs privately, then run the connection check below. Confirm real photo suggestions, structured text normalization and at least one useful official Exa source. Pin model IDs only after the actual account succeeds.
 3. Reconnect the Sites integration, publish this reviewed commit to the existing owner-private Site and confirm deployment status. Preserve .openai/hosting.json; do not create a replacement Site. Confirm hosted DB/BUCKET, pending migrations and runtime secret revision. Local .dev.vars is not hosted configuration.
-4. Sign in with separate attendee and staff accounts. Read each Site-specific ID from My account details; configure STAFF_USER_IDS server-side. Test the full workflow and changed-ID denials. Optional API automation is below. Never use local_seedy as a hosted staff ID.
+4. Sign in with separate attendee and staff accounts. Read each Site-specific ID from My account details; configure STAFF_USER_IDS server-side. Test the full workflow and changed-ID denials. Include a physical item hand-in and the staff custody checkbox in the rehearsal. Optional API automation is below. Never use local_seedy as a hosted staff ID.
 5. After the private build passes, select the intended demonstration audience. Repeat anonymous/signed-in checks at the final URL from a second device, rehearse the three-minute script in DEMO.md and record a real working backup.
 6. Interview an organizer/help-desk operator with permission. Record actual feedback and pilot criteria. Pricing, willingness to pay and operating savings remain hypotheses until measured.
 

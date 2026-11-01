@@ -255,7 +255,7 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
         <h1>{found ? "Found something?" : "What went missing?"}</h1>
         <p>
           {found
-            ? "A few details can help connect an item with the person looking for it."
+            ? "Describe what you found and bring the item to the event help desk so staff can return it."
             : "You don’t need every detail. Start with the item, the place, and an approximate time."}
         </p>
       </div>
@@ -660,6 +660,12 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
                   Public item details help find candidates. Your private
                   identifying clue and original photo stay restricted.
                 </p>
+                {found ? (
+                  <p>
+                    Please hand this item to help-desk staff. Saving a report
+                    does not confirm that staff have received it.
+                  </p>
+                ) : null}
                 {photo && !intakeId ? (
                   <p>
                     Submitting this photo also requests AI analysis of the photo

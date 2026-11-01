@@ -20,6 +20,13 @@ Known limits exposed:
 - Otherwise identical reports five days apart can score 85.
 - Unseen synonyms with missing color can miss a true candidate.
 
+## Targeted phone diagnostics
+`npm run evaluate:matching` now also reports 12 additional fictional phone/electronics scenarios under `targeted_phone`. These cases were written after discovering that a black phone and black headphones could be suggested together. They are developer-authored diagnostics, not an independent holdout or a measured field accuracy rate. The original 24 rows and their split remain unchanged so that provider comparisons still use the same baseline.
+
+On main commit 079c156 before the proposed Electronics item-type guard, the correct candidate appeared in the top three for 5/5 positive phone scenarios. All 7 deliberately challenging negative queries received a suggestion, with 9 false suggestions in total. Different electronics (headphones, laptop, tablet), a different black phone, a color conflict, a long time gap and a generic device all exposed limits. The separate matching-quality PR addresses only clearly different named Electronics types; it does not resolve all false suggestions. Rerun the script after that PR is reviewed and merged rather than carrying these old counts forward as current results.
+
+These cases show why a 0-100 similarity score must never be read as an ownership probability. A useful next evaluation needs real desk inventory and independently labelled reports, including similarly described phones, before changing broad thresholds or claiming precision.
+
 The UI displays the actual conflicting/unknown signals and requires private human verification. These results do not authorize recovery or establish real-world precision. Ayan should propose any scoring-rule change, agree on its impact, and evaluate against a fresh held-out set rather than tuning these results away.
 
 ## What is not measured

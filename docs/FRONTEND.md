@@ -12,6 +12,7 @@ Status: merged in PR #4, continuing the existing shell/form. Ayan's shared/api.t
 - No-match lost reports can explicitly request official recovery guidance. Available, no_sources and unavailable states use the backend response.
 - Request cancellation, bounded timeouts, field errors, retry controls, empty states and sign-in gates. Original photo object URLs are revoked on replacement/removal/unmount.
 - The agreed intake endpoint also runs configured providers when a photo is submitted. The upload hint/review explicitly disclose that processing; private ownership clues are excluded and suggestions never overwrite submitted fields. Photo-free manual submission makes no intake/provider call unless assistance was explicitly requested.
+- The found-item flow asks the finder to hand the physical item to staff and states that a saved report does not establish custody. Staff approval now requires an explicit physical-custody checkbox in the UI; the backend still enforces staff authorization. The checkbox is not a persisted custody record. The sign-in gate gives honest guidance for someone who lost their sign-in device; assisted online claims are not implemented.
 
 ## Verification on 1 November 2026
 - Typecheck, production build, 9 frontend tests and 18 backend tests passed before final publication checks.

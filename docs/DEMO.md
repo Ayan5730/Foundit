@@ -52,3 +52,23 @@ Shared API changes require agreement. Do not make browser workarounds for backen
 With permission, interview at least one event organizer/help-desk operator. Ask how reports arrive, how long comparisons/reunions take, how wrong claims are handled, staffing burden and whether they would pilot this.
 Record date, role, exact consented feedback, current process and pilot criteria. Do not invent quotations, customers, recoveries or savings.
 Propose a free limited pilot followed by an organizer-paid package; validate buyer, procurement, expected event size and a price range in interviews before putting numbers in the pitch.
+
+## Phone and help-desk procedure
+1. Finder hands the physical item to authorized desk staff. The found report describes where it was discovered; it does not record a storage shelf or prove that the desk received it. Staff keep their own custody log until the product records this directly.
+2. Staff record a private distinguishing clue before a claim and keep the item secure. At approval, staff check both the claimant's private evidence and that the physical item is actually at the desk. The new approval checkbox is an operator prompt, not a stored custody record or a substitute for the API's staff permission check.
+3. If the owner lost the device used to sign in, suggest another trusted device. Someone unable to sign in can visit the desk, but the current online claim flow still needs the owner's account. Do not claim that an assisted digital claim exists.
+4. At collection, staff perform an appropriate physical ownership check and confirm handover separately. Never ask anyone to disclose a password, passcode, or one-time code.
+
+## Pilot evidence worksheet
+Before an event, ask the operator to estimate or retrieve its prior lost-property volume, staff effort, and confirmed returns. During the pilot, log every item physically received, every lost inquiry, time spent searching, candidate suggestions, claims, and actual handovers. Count items received at the desk as the denominator for returns; a candidate suggestion is not a recovery.
+
+| Measure | Prior process | FoundIt pilot | Evidence source |
+|---|---|---|---|
+| Items physically received | To collect | To collect | Desk custody log |
+| Lost inquiries | To collect | To collect | Operator records |
+| Staff minutes per inquiry | To measure | To measure | Timed sample |
+| Confirmed returns / items received | To calculate | To calculate | Desk log and handover records |
+| Irrelevant suggestions / searches | Not applicable | To count | Review of labelled pilot queries |
+| Mistaken or disputed handovers | To ask | To count | Operator incident log |
+
+Ask who owns the budget, what they currently spend on staffing and lost-property handling, and what result would justify a paid event package. Record the operator's actual words only with permission. A single small pilot can show feasibility, but it cannot establish market size or real-world model accuracy.

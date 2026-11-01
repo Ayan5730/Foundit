@@ -570,6 +570,22 @@
   line-height: 1.9;
   color: var(--muted);
 }
+.custody-confirmation {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 16px 0;
+  font-size: 13px;
+  line-height: 1.6;
+  cursor: pointer;
+}
+.custody-confirmation input {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin-top: 2px;
+  accent-color: var(--blue);
+}
 .success-notice {
   border: 1px solid #c4e3d1;
   background: #eaf7f0;
