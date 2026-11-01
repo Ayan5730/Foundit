@@ -67,7 +67,7 @@ export function scorePair(source:PublicReport,candidate:PublicReport):Match|null
   const overlap=[...a].filter(word=>b.has(word)).length;
   const similarity=a.size && b.size ? overlap/new Set([...a,...b]).size : 0;
   score+=25*similarity;
-  reasons.push({factor:"features",assessment:similarity>0?"supports":"unknown",text:similarity>0?"Descriptions share normalized visible details.":"No shared visible details were identified."});
+  reasons.push({factor:"features",assessment:similarity>0?"supports":"unknown",text:similarity>0?"Reports share normalized public item details.":"No shared public item details were identified."});
   if(source.location==="Other" || candidate.location==="Other")reasons.push({factor:"location",assessment:"unknown",text:"A specific event area is missing."});
   else if(source.location===candidate.location){score+=20;reasons.push({factor:"location",assessment:"supports",text:"Both reports name the same event area."});}
   else reasons.push({factor:"location",assessment:"conflicts",text:"Different event areas were reported."});
