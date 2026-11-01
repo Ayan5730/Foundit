@@ -1,6 +1,6 @@
 # FoundIt API v1 contract
 
-Initial contract checkpoint for frontend/backend coordination. This follows docs/PLAN.md without changing frontend code. Import browser-safe types/runtime schemas from shared/api.ts. Representative typed fixtures are in shared/examples.ts; they are labelled examples, not a live-data fallback.
+Contract agreed in chat after first checkpoint e37805c. All routes below are now implemented on backend/core; live providers and hosted identity remain unverified. This follows docs/PLAN.md without changing frontend code. Import browser-safe types/runtime schemas from shared/api.ts. Representative typed fixtures are in shared/examples.ts; they are labelled examples, not a live-data fallback.
 
 ## Implemented at the first checkpoint
 - GET /api/v1/health -> {data:{status:"ok",api_version:"v1"}}. Process availability only, not database/provider readiness.
@@ -22,7 +22,7 @@ Create requests are idempotent per owner and request ID: identical payload retur
 POST /intake uses multipart kind, description, optional photo. It returns an Intake with editable suggestions and per-provider status. No private clue/evidence is sent to AI.
 Original media is private: only uploader/staff may retrieve it. Claimant detail includes their evidence/status but never finder reference clue. Staff detail uses a distinct StaffClaim DTO.
 
-## Planned route map (not implemented by the first checkpoint)
+## Implemented route map (added after the first checkpoint)
 POST /intake -> Intake
 POST /reports -> PublicReport (201 new,200 replay)
 GET /reports/{id} -> PublicReport
@@ -39,6 +39,13 @@ GET /media/{id} -> private image bytes (uploader/staff)
 POST /recovery-guidance -> Guidance
 
 Approval reserves both reports; only confirmed handover marks recovered. Reports/claims are not proof of identity. Match score is a heuristic ranking signal.
+
+Handover accepts an empty JSON object {}. Review accepts {decision:"approved"|"rejected",note:string|null}. Repeating an identical review/handover returns the existing state; an incompatible transition returns409. Concurrent approval conflicts also return409. Approval does not automatically reject other pending claims.
+Owner lists and staff queue return at most 100 newest entries; matching considers up to 500 newest active same-event/category candidates and returns top 3. Public report GET remains anonymous-safe. Staff claim detail has its own endpoint; GET /claims/{id} is claimant-only.
+Intake accepts kind and description, with optional photo; an empty description is permitted only with a photo. It rejects private_clue/evidence fields. Intake IDs also identify private media when media_id is non-null; attach intake_id to a confirmed report. Uploads use byte-signature/MIME and size checks, not a full image decoder. Invalid images should still be handled by the frontend.
+Assistance endpoints share a persisted 10/minute/user limit and 8-second timeout per provider call. Failed/missing AI returns unavailable status and empty/partial editable suggestions. Manual report creation never requires a provider.
+Guidance returns only HTTPS new.delhimetrorail.com source passages, with original source links and retrieval time. Available results are cached for one hour; unavailable/no_sources are not invented matches.
+POST requests reject cross-origin Origin/Sec-Fetch-Site values. All responses and private image reads are no-store. Request sizes are bounded. Payloads and provider errors are not logged or echoed by handlers.
 
 ## Frontend integration handoff
 The existing frontend draft has camelCase occurredAt/privateClue. Keep it as UI state; map explicitly to occurred_at/private_clue at submission after contract agreement. Get choices/limits/capabilities from bootstrap. Do not supply owner IDs or emulate role headers.
