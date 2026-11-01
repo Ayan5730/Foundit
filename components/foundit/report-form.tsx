@@ -119,7 +119,6 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
     setBusy("submit");
     setRequestError("");
     try {
-      const attachedId = photo && !intakeId ? (await intake()).id : intakeId;
       const features = featureText
         .split(",")
         .map((value) => value.trim())
@@ -128,6 +127,7 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
         throw new Error(
           "Use up to 10 visible features, with no more than 80 characters each.",
         );
+      const attachedId = photo && !intakeId ? (await intake()).id : intakeId;
       const payload = toCreateReport(
         draft,
         kind,
@@ -555,9 +555,10 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
                 </p>
               ) : null}
               <p className="field-hint" id="photo-hint">
-                JPG, PNG or WebP, up to 4 MB. Photos are uploaded when you use
-                assistance or submit. Originals are private to you and
-                authorized staff.
+                JPG, PNG or WebP, up to 4 MB. Using assistance or submitting a
+                photo sends the photo and public description to configured
+                OpenAI/Cerebras services. Ownership clues are excluded. Stored
+                originals are accessible only to you and authorized staff.
               </p>
             </fieldset>
             {found ? (
@@ -659,6 +660,14 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
                   Public item details help find candidates. Your private
                   identifying clue and original photo stay restricted.
                 </p>
+                {photo && !intakeId ? (
+                  <p>
+                    Submitting this photo also requests AI analysis of the photo
+                    and public description. Suggestions never change your
+                    submitted details automatically. Remove the photo to submit
+                    manually without AI.
+                  </p>
+                ) : null}
               </div>
               <div className="review-actions">
                 <button

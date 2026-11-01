@@ -11,6 +11,7 @@ Status: implemented on integration/complete-demo, continuing the merged shell/fo
 - Protected staff queue, private clue/evidence/photo comparison, explicit approve/reject confirmation and separate confirmed handover. Counts refresh after changes.
 - No-match lost reports can explicitly request official recovery guidance. Available, no_sources and unavailable states use the backend response.
 - Request cancellation, bounded timeouts, field errors, retry controls, empty states and sign-in gates. Original photo object URLs are revoked on replacement/removal/unmount.
+- The agreed intake endpoint also runs configured providers when a photo is submitted. The upload hint/review explicitly disclose that processing; private ownership clues are excluded and suggestions never overwrite submitted fields. Photo-free manual submission makes no intake/provider call unless assistance was explicitly requested.
 
 ## Verification on 1 November 2026
 - Typecheck, production build, 9 frontend tests and 18 backend tests passed before final publication checks.
