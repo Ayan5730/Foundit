@@ -17,6 +17,7 @@ export const base: PublicReport = {
   occurred_at: "2026-11-01T04:30:00Z",
   status: "active",
   created_at: "2026-11-01T05:00:00Z",
+  has_shared_preview: false,
 };
 type Patch = Partial<PublicReport>;
 export type Scenario = {

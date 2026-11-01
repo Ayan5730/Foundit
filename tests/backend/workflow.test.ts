@@ -1,5 +1,6 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
 import {database,bucket} from "./helpers.ts";
 import {Store} from "../../lib/server/store.ts";
 import {handle,type Resources} from "../../lib/server/application.ts";
@@ -74,6 +75,58 @@ test("HTTP validation, missing identity, CSRF, wrong owner, and private media ac
     assert.equal((await handle(new Request(mediaUrl),{...resources,actor:finder})).status,404);
     const allowed=await handle(new Request(mediaUrl),resources);assert.equal(allowed.status,200);assert.equal(allowed.headers.get("Cache-Control"),"no-store");
     assert.equal((await handle(new Request(mediaUrl),{...resources,actor:staff})).status,200);
+  }finally{db.close();}
+});
+test("approved item preview is visible to signed-in match viewers, while the original stays private",async()=>{
+  const {db,d1}=database(),store=new Store(d1),images=bucket();
+  const resources:Resources={db:d1,bucket:images.binding,actor:finder,providers:{}};
+  try{
+    const form=new FormData();form.set("kind","found");form.set("description","Fictional navy bag");
+    form.set("photo",new File([new Uint8Array([137,80,78,71,13,10,26,10])],"original.png",{type:"image/png"}));
+    const previewBytes=new Uint8Array(readFileSync(new URL("../fixtures/fictional-bag-preview.jpg",import.meta.url)));
+    form.set("shared_preview",new File([previewBytes],"preview.jpg",{type:"image/jpeg"}));
+    const intake=await handle(new Request("https://foundit.test/api/v1/intake",{method:"POST",body:form}),resources);
+    assert.equal(intake.status,201);
+    const intakeId=(await intake.json() as Success<{id:string}>).data.id;
+    const found=await createReport(store,finder,{...foundReportRequest,client_request_id:crypto.randomUUID(),intake_id:intakeId});
+    assert.equal(found.report.has_shared_preview,true);
+    const reportUrl="https://foundit.test/api/v1/reports/"+found.report.id;
+    const publicResponse=await handle(new Request(reportUrl),{...resources,actor:null});
+    const publicBody=await publicResponse.json() as Success<PublicReport>;
+    assert.equal(publicBody.data.has_shared_preview,true);
+    assert.equal(JSON.stringify(publicBody).includes("private/"),false);
+    assert.equal(JSON.stringify(publicBody).includes(intakeId),false);
+    const previewUrl=reportUrl+"/preview";
+    assert.equal((await handle(new Request(previewUrl),{...resources,actor:null})).status,401);
+    const otherView=await handle(new Request(previewUrl),{...resources,actor:owner});
+    assert.equal(otherView.status,200);assert.equal(otherView.headers.get("Content-Type"),"image/jpeg");
+    assert.match(otherView.headers.get("Cache-Control")??"",/no-store/);
+    assert.deepEqual(new Uint8Array(await otherView.arrayBuffer()),previewBytes);
+    assert.equal((await handle(new Request("https://foundit.test/api/v1/media/"+intakeId),{...resources,actor:owner})).status,404);
+    const lost=await createReport(store,owner,{...lostReportRequest,client_request_id:crypto.randomUUID()});
+    const claim=await createClaim(store,owner,{client_request_id:crypto.randomUUID(),lost_report_id:lost.report.id,found_report_id:found.report.id,evidence:"Fictional triangle mark inside the pocket"});
+    await reviewClaim(store,staff,claim.claim.id,"approved",null);
+    await handover(store,staff,claim.claim.id);
+    assert.equal((await handle(new Request(previewUrl),{...resources,actor:owner})).status,404);
+    assert.equal((await handle(new Request(reportUrl),{...resources,actor:null}).then(r=>r.json()) as Success<PublicReport>).data.has_shared_preview,false);
+  }finally{db.close();}
+});
+test("reporter can hide an approved preview and another attendee cannot change it",async()=>{
+  const {db,d1}=database(),store=new Store(d1);
+  try{
+    const intakeId=crypto.randomUUID();
+    await store.run("INSERT INTO intakes(id,owner_id,object_key,content_type,shared_preview_key,suggestions,providers,created_at) VALUES (?,?,?,'image/png',?,'{}','{}',?)",intakeId,finder.id,"private/"+intakeId,"shared-preview/"+intakeId,new Date().toISOString());
+    const found=await createReport(store,finder,{...foundReportRequest,client_request_id:crypto.randomUUID(),intake_id:intakeId});
+    assert.equal(found.report.has_shared_preview,true);
+    const url="https://foundit.test/api/v1/reports/"+found.report.id+"/preview/hide";
+    const request=()=>new Request(url,{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});
+    const resources:Resources={db:d1,actor:owner,providers:{}};
+    assert.equal((await handle(request(),resources)).status,404);
+    const hidden=await handle(request(),{...resources,actor:finder});
+    assert.equal(hidden.status,200);
+    assert.equal((await hidden.json() as Success<PublicReport>).data.has_shared_preview,false);
+    assert.equal((await handle(request(),{...resources,actor:finder})).status,200);
+    assert.equal((await handle(new Request(url.replace("/hide","")),resources)).status,404);
   }finally{db.close();}
 });
 test("assistance rate limit is persisted and crosses endpoint boundaries",async()=>{

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { CreateReportSchema,CreateClaimSchema,ReviewSchema,GuidanceRequestSchema,type Guidance } from "../../shared/api.ts";
 import { ApiError,ok,failure } from "./http.ts";
 import { Store,requireActor,requireStaff,requireOwner,type Actor } from "./store.ts";
-import { reportRow,createReport,ownReports,matchSource,publicReport,type ReportRow } from "./reports.ts";
+import { reportRow,createReport,ownReports,matchSource,publicReport,hideSharedPreview,type ReportRow } from "./reports.ts";
 import { rankMatches } from "./matching.ts";
 import { createClaim,readClaim,listClaims,staffQueue,staffDetail,reviewClaim,handover } from "./claims.ts";
 import { boundedBody,createIntake,rateLimit } from "./intake.ts";
@@ -33,7 +33,22 @@ export async function handle(request:Request,resources:Resources):Promise<Respon
       const user=requireActor(actor),input=await json(request,CreateReportSchema),result=await createReport(store,user,input);
       return ok(result.report,result.created?201:200);
     }
+    if(method==="POST"&&path[0]==="reports"&&path.length===4&&path[2]==="preview"&&path[3]==="hide"){
+      const user=requireActor(actor);await json(request,z.object({}).strict());
+      return ok(await hideSharedPreview(store,user,id(path[1])));
+    }
     if(method==="GET"&&path[0]==="reports"&&path.length===2)return ok(publicReport(await reportRow(store,id(path[1]))));
+    if(method==="GET"&&path[0]==="reports"&&path.length===3&&path[2]==="preview"){
+      requireActor(actor);
+      const report=await reportRow(store,id(path[1]));
+      if(report.has_shared_preview!==1||report.status==="recovered")throw new ApiError(404,"not_found","Item preview not found.");
+      const preview=await store.one<{shared_preview_key:string|null}>("SELECT i.shared_preview_key FROM private_reports p JOIN intakes i ON i.id=p.intake_id WHERE p.report_id=?",report.id);
+      if(!preview?.shared_preview_key)throw new ApiError(404,"not_found","Item preview not found.");
+      if(!resources.bucket)throw new ApiError(503,"storage_unavailable","Image storage is not configured.");
+      const object=await resources.bucket.get(preview.shared_preview_key);
+      if(!object)throw new ApiError(404,"not_found","Item preview not found.");
+      return new Response(object.body,{headers:{"Content-Type":"image/jpeg","Content-Disposition":'inline; filename="shared-item-preview.jpg"',"Cache-Control":"private, no-store","X-Content-Type-Options":"nosniff","Cross-Origin-Resource-Policy":"same-origin","Content-Security-Policy":"default-src 'none'; sandbox"}});
+    }
     if(method==="GET"&&path.join("/")==="me/reports")return ok(await ownReports(store,requireActor(actor)));
     if(method==="GET"&&path[0]==="reports"&&path[2]==="matches"&&path.length===3){
       const source=await matchSource(store,requireActor(actor),id(path[1]));

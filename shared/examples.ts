@@ -22,7 +22,7 @@ export const anonymousBootstrap: Success<Bootstrap> = {data:{
   capabilities:{can_report:false,can_review:false},
   choices:{categories:["Bags","Electronics","Keys","Clothing","Books","Accessories","Drinkware","Other"],
     locations:["Registration","Main Hall","Workshop Rooms","Cafeteria","Entrance","Other"]},
-  limits:{title:120,description:2000,evidence:2000,image_bytes:4194304},
+  limits:{title:120,description:2000,evidence:2000,image_bytes:4194304,shared_preview_bytes:524288},
   recovery_organizations:[{id:"rapid_metro",name:"Rapid Metro"}],
 }};
 export const publicReportResponse:Success<PublicReport> = {data:{
@@ -30,5 +30,5 @@ export const publicReportResponse:Success<PublicReport> = {data:{
   title:lostReportRequest.title,category:lostReportRequest.category,color:lostReportRequest.color,
   description:lostReportRequest.description,visible_features:lostReportRequest.visible_features,
   location:lostReportRequest.location,occurred_at:lostReportRequest.occurred_at,status:"active",
-  created_at:"2026-11-01T05:00:00.000Z",
+  created_at:"2026-11-01T05:00:00.000Z",has_shared_preview:false,
 }};

@@ -5,11 +5,11 @@ export const reports = sqliteTable("reports", {
   title:text("title").notNull(),category:text("category").notNull(),color:text("color"),
   description:text("description").notNull(),visibleFeatures:text("visible_features").notNull(),
   location:text("location").notNull(),occurredAt:text("occurred_at").notNull(),status:text("status").notNull(),
-  createdAt:text("created_at").notNull(),
+  createdAt:text("created_at").notNull(),hasSharedPreview:integer("has_shared_preview").notNull().default(0),
 },t=>[uniqueIndex("reports_owner_request").on(t.ownerId,t.clientRequestId)]);
 export const intakes = sqliteTable("intakes",{
   id:text("id").primaryKey(),ownerId:text("owner_id").notNull(),objectKey:text("object_key"),
-  contentType:text("content_type"),suggestions:text("suggestions").notNull(),providers:text("providers").notNull(),createdAt:text("created_at").notNull(),
+  contentType:text("content_type"),sharedPreviewKey:text("shared_preview_key"),suggestions:text("suggestions").notNull(),providers:text("providers").notNull(),createdAt:text("created_at").notNull(),
 });
 export const privateReports = sqliteTable("private_reports",{
   reportId:text("report_id").primaryKey().references(()=>reports.id),privateClue:text("private_clue"),

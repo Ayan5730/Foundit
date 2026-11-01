@@ -1,5 +1,6 @@
 import { MapPin, Package, Clock } from "lucide-react";
 import type { PublicReport } from "@/shared/api";
+import { ItemVisual } from "./item-visual";
 export function formatTime(value: string) {
   const date = new Date(value);
   return Number.isNaN(date.getTime())
@@ -29,6 +30,10 @@ export function ReportSummary({
           {report.status}
         </span>
       </div>
+      <ItemVisual key={report.id} report={report} />
+      {report.has_shared_preview ? (
+        <p className="item-visual-caption">Shared item preview. Staff still verify private evidence.</p>
+      ) : null}
       <h2>{report.title}</h2>
       <p className="summary-description">{report.description}</p>
       <dl>

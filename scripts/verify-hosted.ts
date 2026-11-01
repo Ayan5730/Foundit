@@ -16,7 +16,7 @@ export function siteOrigin(value: string, local = false): string {
   return url.origin;
 }
 
-const publicFields = ["id", "event_id", "kind", "title", "category", "color", "description", "visible_features", "location", "occurred_at", "status", "created_at"].sort();
+const publicFields = ["id", "event_id", "kind", "title", "category", "color", "description", "visible_features", "location", "occurred_at", "status", "created_at", "has_shared_preview"].sort();
 function ensure(value: unknown, check: string): asserts value {
   if (!value) throw new Error(check);
 }

@@ -102,6 +102,11 @@
 .upload-zone img{max-height:230px;max-width:100%;object-fit:contain;border-radius:4px}
 .photo-meta{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:11px;color:var(--muted);overflow-wrap:anywhere}
 .photo-meta button{display:inline-flex;gap:5px;align-items:center;border:0;background:none;font-size:11px;white-space:nowrap;cursor:pointer}
+.sharing-choice{display:flex;align-items:flex-start;gap:12px;padding:15px;margin:12px 0;border:1px solid #cddcf2;border-radius:7px;background:#f4f7fd;cursor:pointer}
+.sharing-choice input{width:17px;height:17px;flex:0 0 17px;margin:2px 0 0;accent-color:var(--blue)}
+.sharing-choice>span{display:grid;gap:5px;font-size:11px;line-height:1.6;color:var(--muted)}
+.sharing-choice strong{font-size:12px;line-height:1.5;color:var(--ink);font-weight:650}
+.sharing-choice:focus-within{outline:3px solid #91b4ff;outline-offset:2px}
 .report-form .private-fieldset{padding:22px;background:#f3f6fc;border-radius:8px;border:1px solid #dce5f3}
 .private-fieldset legend{float:left;margin-bottom:10px}
 .private-fieldset>.fieldset-description{clear:both}

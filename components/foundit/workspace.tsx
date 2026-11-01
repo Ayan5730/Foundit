@@ -3,6 +3,7 @@ import type { PublicReport, ClaimSummary } from "@/shared/api";
 import { RequireSession, useSession } from "./session";
 import { useResource } from "@/lib/client/use-resource";
 import { formatTime } from "./report-summary";
+import { ItemVisual } from "./item-visual";
 export function Workspace() {
   return (
     <main id="main-content" className="site-width workspace-page">
@@ -64,10 +65,8 @@ function WorkspaceData() {
                 href={"/reports/" + report.id}
                 key={report.id}
               >
-                <span className="record-initial">
-                  {report.kind === "lost" ? "L" : "F"}
-                </span>
-                <span>
+                <ItemVisual report={report} compact />
+                <span className="record-main">
                   <strong>{report.title}</strong>
                   <small>
                     {report.location} · {formatTime(report.occurred_at)}
@@ -104,7 +103,7 @@ function WorkspaceData() {
                 key={claim.id}
               >
                 <span className="record-initial">R</span>
-                <span>
+                <span className="record-main">
                   <strong>Recovery ticket {claim.id.slice(0, 8)}</strong>
                   <small>Submitted {formatTime(claim.created_at)}</small>
                 </span>

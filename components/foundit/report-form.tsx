@@ -37,6 +37,7 @@ import {
   requestIdentity,
 } from "@/lib/client/api";
 import { RequireSession, useSession } from "./session";
+import { createSharedPreview } from "@/lib/client/shared-preview";
 
 export function ReportForm({ kind }: { kind: ReportKind }) {
   return (
@@ -51,6 +52,7 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
   const [draft, setDraft] = useState<Draft>({ ...emptyDraft });
   const [errors, setErrors] = useState<DraftErrors>({});
   const [photo, setPhoto] = useState<File | null>(null);
+  const [sharePreview, setSharePreview] = useState(false);
   const [preview, setPreview] = useState("");
   const [photoError, setPhotoError] = useState("");
   const [reviewing, setReviewing] = useState(false);
@@ -73,7 +75,10 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
     const form = new FormData();
     form.set("kind", kind);
     form.set("description", draft.description);
-    if (photo) form.set("photo", photo);
+    if (photo) {
+      form.set("photo", photo);
+      if (sharePreview) form.set("shared_preview", await createSharedPreview(photo));
+    }
     const result = await api<Intake>("/intake", { method: "POST", body: form });
     setIntakeId(result.id);
     return result;
@@ -191,6 +196,7 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
     previewRef.current = "";
     setPreview("");
     setPhoto(null);
+    setSharePreview(false);
     setPhotoError("");
     setReviewing(false);
     setIntakeId(null);
@@ -549,6 +555,29 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
                   </button>
                 </div>
               ) : null}
+              {photo ? (
+                <label className="sharing-choice">
+                  <input
+                    type="checkbox"
+                    checked={sharePreview}
+                    disabled={busy !== null}
+                    onChange={(event) => {
+                      setSharePreview(event.target.checked);
+                      setIntakeId(null);
+                      setAssistance(null);
+                      setReviewing(false);
+                    }}
+                  />
+                  <span>
+                    <strong>Show a small item preview to signed-in attendees</strong>
+                    <span>
+                      Optional. Check this only if the image shows the item without
+                      faces, documents, serial labels or a hidden ownership clue.
+                      The original stays private for you and staff.
+                    </span>
+                  </span>
+                </label>
+              ) : null}
               {photoError ? (
                 <p className="field-error" role="alert" id="photo-error">
                   {photoError}
@@ -558,7 +587,8 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
                 JPG, PNG or WebP, up to 4 MB. Using assistance or submitting a
                 photo sends the photo and public description to configured
                 OpenAI/Cerebras services. Ownership clues are excluded. Stored
-                originals are accessible only to you and authorized staff.
+                originals are accessible only to you and authorized staff. A
+                smaller copy is shared only if you check the option above.
               </p>
             </fieldset>
             {found ? (
@@ -644,7 +674,7 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
                 </div>
                 <div>
                   <dt>Photo</dt>
-                  <dd>{photo ? "Selected for preview" : "Not added"}</dd>
+                  <dd>{photo ? (sharePreview ? "Small preview shared with signed-in attendees" : "Private original only") : "Not added"}</dd>
                 </div>
               </dl>
               <p className="review-description">{draft.description.trim()}</p>
@@ -658,7 +688,9 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
                 <strong>Check the details before submitting.</strong>
                 <p>
                   Public item details help find candidates. Your private
-                  identifying clue and original photo stay restricted.
+                  identifying clue and original photo stay restricted. If you
+                  selected sharing, a smaller item preview will appear on
+                  possible matches.
                 </p>
                 {found ? (
                   <p>
