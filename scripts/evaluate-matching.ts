@@ -1,9 +1,10 @@
 import { performance } from "node:perf_hooks";
 import { rankMatches } from "../lib/server/matching.ts";
 import type { PublicReport } from "../shared/api.ts";
+import { isMain, saveReport } from "./provider-tools.ts";
 
 // Offline, fictional reports. No database, HTTP requests, provider calls or secrets.
-const base: PublicReport = {
+export const base: PublicReport = {
   id: "query",
   event_id: "foundit-hackathon",
   kind: "lost",
@@ -18,14 +19,14 @@ const base: PublicReport = {
   created_at: "2026-11-01T05:00:00Z",
 };
 type Patch = Partial<PublicReport>;
-type Scenario = {
+export type Scenario = {
   name: string;
   query?: Patch;
   candidate?: Patch;
   relevant: boolean;
   distractors?: Patch[];
 };
-const cases: Scenario[] = [
+export const cases: Scenario[] = [
   { name: "Exact visible attributes", relevant: true },
   {
     name: "Navy / dark blue wording",
@@ -167,7 +168,7 @@ const cases: Scenario[] = [
     relevant: true,
   },
 ];
-const rows = cases.map((item, index) => {
+export function scenarioReports(item: Scenario) {
   const query = { ...base, ...item.query };
   const candidate = {
     ...base,
@@ -180,8 +181,11 @@ const rows = cases.map((item, index) => {
     ...patch,
     id: "distractor-" + i,
   }));
+  return { query, candidates: [candidate, ...distractors] };
+}
+export function evaluateScenario(item: Scenario, index: number, query: PublicReport, candidates: PublicReport[]) {
   const start = performance.now();
-  const result = rankMatches(query, [candidate, ...distractors]);
+  const result = rankMatches(query, candidates);
   return {
     case: index + 1,
     split: index < 16 ? "development" : "held_out",
@@ -199,8 +203,14 @@ const rows = cases.map((item, index) => {
     ).length,
     matcher_ms: Number((performance.now() - start).toFixed(3)),
   };
-});
-const summarize = (subset: typeof rows) => {
+}
+export function baselineRows() {
+  return cases.map((item, index) => {
+    const { query, candidates } = scenarioReports(item);
+    return evaluateScenario(item, index, query, candidates);
+  });
+}
+export function summarize(subset: ReturnType<typeof baselineRows>) {
   const positives = subset.filter((row) => row.relevant).length;
   return {
     scenarios: subset.length,
@@ -212,10 +222,10 @@ const summarize = (subset: typeof rows) => {
     ).length,
     false_suggestions: subset.reduce((n, row) => n + row.false_suggestions, 0),
   };
-};
-console.log(
-  JSON.stringify(
-    {
+}
+if (isMain(import.meta.url)) {
+  const rows = baselineRows();
+  await saveReport("matching-evaluation.json", {
       scope:
         "24 synthetic offline scenarios; not real-world accuracy. Fixed heuristic, no AI calls.",
       provider_comparison:
@@ -225,8 +235,5 @@ console.log(
       held_out: summarize(rows.slice(16)),
       provider_calls: 0,
       rows,
-    },
-    null,
-    2,
-  ),
-);
+  });
+}
