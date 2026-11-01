@@ -39,3 +39,6 @@ Preserve the established white/blue event help desk and claim-ticket timeline. V
 
 ## Audit fixes - 1 November 2026
 Photo submission now stores the image without AI unless the user explicitly requests assistance. Inputs freeze during assistance and edits invalidate suggestions. Staff submits custody_confirmed to the server and cannot approve their own claim. Owner and staff lists provide pagination; partial matching scans show a warning. Structural image checks do not prove full image decoding.
+
+## Netlify account flow
+The Netlify build adds `/account` with email sign-in, confirmed registration, password reset, sign-out and only the OAuth providers actually enabled in Identity. Root session initialization handles email/OAuth callbacks and refreshes authentication before loading bootstrap. The original Sites sign-in remains available in the Sites build. Hosted validation is recorded in RELEASE.md.
