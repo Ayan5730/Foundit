@@ -60,3 +60,6 @@ The existing tests/backend/smoke-local.ts runner creates labelled fictional reco
 Adarsh now handles backend, frontend, root configuration, integration and publication. Use focused PRs and review before merging; preserve the existing API contract and privacy boundaries.
 .openai/hosting.json persists the one registered FoundIt Site identity and DB/BUCKET binding names. GitHub origin remains the team repository; Sites source synchronization uses its separate short-lived credential through stdin, never Git configuration or files.
 Publishing uses the exact pushed source commit and its build archive. Verify private deployment first; public audience changes need the owner's explicit request. Configure hosted runtime secrets separately, deploy their revision, and test distinct staff/attendee accounts before judging.
+
+## Additive audit migration
+After the initial and approved-preview migrations, apply `drizzle/0002_audit_query_indexes.sql` once to existing local databases using the same local D1 execute command and persistence directory, replacing the --file argument. Do not replay already-applied migrations. Sites publication must apply the new pending migration separately. It adds query indexes and does not delete data.

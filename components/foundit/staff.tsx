@@ -31,7 +31,8 @@ export function StaffWorkspace({ claimId }: { claimId?: string }) {
   );
 }
 function StaffData({ claimId }: { claimId?: string }) {
-  const queue = useResource<Queue>("/staff/claims");
+  const [offset, setOffset] = useState(0);
+  const queue = useResource<Queue>("/staff/claims?offset=" + offset);
   if (queue.loading) return <p role="status">Loading the review desk…</p>;
   if (queue.error)
     return <ErrorState text={queue.error} retry={queue.refresh} />;
@@ -75,6 +76,11 @@ function StaffData({ claimId }: { claimId?: string }) {
               text="New private recovery requests will appear here."
             />
           )}
+          <div className="workspace-toolbar" aria-label="Recovery queue pages">
+            <button className="text-action" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - 100))}>Previous</button>
+            <span>Page {Math.floor(offset / 100) + 1}</span>
+            <button className="text-action" disabled={offset + (queue.data?.claims.length ?? 0) >= Object.values(queue.data?.counts ?? {}).reduce((sum, count) => sum + count, 0)} onClick={() => setOffset(offset + 100)}>Next</button>
+          </div>
         </aside>
         <div>
           {claimId ? (
@@ -115,7 +121,7 @@ function StaffDetail({ id, onChange }: { id: string; onChange: () => void }) {
           (action === "handover" ? "/handover" : "/review"),
         action === "handover"
           ? {}
-          : { decision: action, note: note.trim() || null },
+          : { decision: action, note: note.trim() || null, custody_confirmed: action === "approved" && custodyConfirmed },
       );
       setSuccess(
         value.status === "recovered"

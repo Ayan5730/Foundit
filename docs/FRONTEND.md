@@ -36,3 +36,6 @@ Use ordinary anchors: the initial frontend checkpoint observed a Vinext producti
 
 ## Design
 Preserve the established white/blue event help desk and claim-ticket timeline. Visible labels, skip link, focus styles, reduced motion, error messages, public/private separation and responsive comparison layouts take priority over decorative work.
+
+## Audit fixes - 1 November 2026
+Photo submission now stores the image without AI unless the user explicitly requests assistance. Inputs freeze during assistance and edits invalidate suggestions. Staff submits custody_confirmed to the server and cannot approve their own claim. Owner and staff lists provide pagination; partial matching scans show a warning. Structural image checks do not prove full image decoding.

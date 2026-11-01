@@ -71,10 +71,11 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
   const requestRef = useRef<{ payload: string; id: string } | null>(null);
   const categories = session.data!.choices.categories;
   const locations = session.data!.choices.locations;
-  async function intake(): Promise<Intake> {
+  async function intake(requestAssistance = false): Promise<Intake> {
     const form = new FormData();
     form.set("kind", kind);
     form.set("description", draft.description);
+    form.set("assist", String(requestAssistance));
     if (photo) {
       form.set("photo", photo);
       if (sharePreview) form.set("shared_preview", await createSharedPreview(photo));
@@ -92,7 +93,7 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
     setRequestError("");
     setNeedsSignIn(false);
     try {
-      setAssistance(await intake());
+      setAssistance(await intake(true));
     } catch (reason) {
       setRequestError(message(reason));
       setNeedsSignIn(reason instanceof ApiClientError && reason.status === 401);
@@ -187,6 +188,7 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
   }, [reviewing]);
 
   function update(field: keyof Draft, value: string) {
+    setAssistance(null);
     setDraft((previous) => ({ ...previous, [field]: value }));
     setErrors((previous) => ({ ...previous, [field]: undefined }));
     setReviewing(false);
@@ -370,7 +372,7 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
                 </p>
               </div>
             ) : null}
-            <fieldset disabled={busy === "submit"}>
+            <fieldset disabled={busy !== null}>
               <legend>
                 <span>1</span> Tell us about the item
               </legend>
@@ -447,6 +449,7 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
                   maxLength={810}
                   onChange={(event) => {
                     setFeatureText(event.target.value);
+                    setAssistance(null);
                     setReviewing(false);
                   }}
                   placeholder="e.g. Silver zipper, canvas material"
@@ -457,7 +460,7 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
                 </span>
               </div>
             </fieldset>
-            <fieldset disabled={busy === "submit"}>
+            <fieldset disabled={busy !== null}>
               <legend>
                 <span>2</span> Where and when?
               </legend>
@@ -499,7 +502,7 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
                 </div>
               </div>
             </fieldset>
-            <fieldset disabled={busy === "submit"}>
+            <fieldset disabled={busy !== null}>
               <legend>
                 <span>3</span> A photo, if you have one <small>Optional</small>
               </legend>
@@ -584,9 +587,9 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
                 </p>
               ) : null}
               <p className="field-hint" id="photo-hint">
-                JPG, PNG or WebP, up to 4 MB. Using assistance or submitting a
-                photo sends the photo and public description to configured
-                OpenAI/Cerebras services. Ownership clues are excluded. Stored
+                JPG, PNG or WebP, up to 4 MB and 16 megapixels. Help describe this
+                item sends the photo to OpenAI and public description and attributes
+                to configured AI services. Ownership clues are excluded. Stored
                 originals are accessible only to you and authorized staff. A
                 smaller copy is shared only if you check the option above.
               </p>
@@ -594,7 +597,7 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
             {found ? (
               <fieldset
                 className="private-fieldset"
-                disabled={busy === "submit"}
+                disabled={busy !== null}
               >
                 <legend>
                   <LockKeyhole size={17} /> Keep one clue private
@@ -700,10 +703,9 @@ function ReportFormContent({ kind }: { kind: ReportKind }) {
                 ) : null}
                 {photo && !intakeId ? (
                   <p>
-                    Submitting this photo also requests AI analysis of the photo
-                    and public description. Suggestions never change your
-                    submitted details automatically. Remove the photo to submit
-                    manually without AI.
+                    Your original photo is stored privately. Submitting a report does not
+                    request AI analysis. Use Help describe this item to request
+                    optional suggestions before submitting.
                   </p>
                 ) : null}
               </div>

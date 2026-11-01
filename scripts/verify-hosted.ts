@@ -61,6 +61,7 @@ export async function verifyHosted(value: string, sessions: Sessions = {}, optio
     const response = await request(path, cookie, body);
     ensure(response.status === status, current + "_http_status");
     ensure(response.headers.get("Cache-Control")?.includes("no-store"), current + "_no_store");
+    await response.body?.cancel();
   }
   const result = (status: string, failed_check?: string) => ({
     checked_at: new Date().toISOString(), scope: options.local ? "local_built_worker_only" : "hosted_site",
@@ -142,6 +143,7 @@ export async function verifyHosted(value: string, sessions: Sessions = {}, optio
     await denied("reports/" + foundId + "/matches", sessions.attendee, undefined, 404);
     const media = await request("media/" + mediaId, sessions.staff);
     ensure(media.status === 200 && media.headers.get("Cache-Control")?.includes("no-store"), current);
+    await media.body?.cancel();
     checks.push(current);
     current = "real_matching";
     const matches = await data<Matches>("reports/" + lostId + "/matches", sessions.attendee);
@@ -157,7 +159,7 @@ export async function verifyHosted(value: string, sessions: Sessions = {}, optio
     await denied("claims/" + claimId, sessions.staff, undefined, 404);
     const claimantView = await data<Claim>("claims/" + claimId, sessions.attendee);
     ensure(!("private_clue" in claimantView), "finder_clue_excluded_from_claimant_view");
-    await denied("staff/claims/" + claimId + "/review", sessions.attendee, { decision: "approved", note: null }, 403);
+    await denied("staff/claims/" + claimId + "/review", sessions.attendee, { decision: "approved", note: null, custody_confirmed: true }, 403);
     await denied("staff/claims/" + claimId + "/handover", sessions.attendee, {}, 403);
     const detail = await data<StaffClaim>("staff/claims/" + claimId, sessions.staff);
     ensure(detail.private_clue === clue && detail.evidence === clue, current);
@@ -168,12 +170,12 @@ export async function verifyHosted(value: string, sessions: Sessions = {}, optio
     const competingId = recordId(competing.id);
     checks.push(current);
     current = "approval_reserves_without_recovery";
-    const approved = await data<Claim>("staff/claims/" + claimId + "/review", sessions.staff, { decision: "approved", note: "FICTIONAL DEMO verification" });
+    const approved = await data<Claim>("staff/claims/" + claimId + "/review", sessions.staff, { decision: "approved", note: "FICTIONAL DEMO verification", custody_confirmed: true });
     ensure(approved.status === "approved", current);
     for (const id of [lostId, foundId]) ensure((await data<PublicReport>("reports/" + id, sessions.attendee)).status === "reserved", current);
     checks.push(current);
     current = "competing_approval_denied_and_rejection_final";
-    await denied("staff/claims/" + competingId + "/review", sessions.staff, { decision: "approved", note: null }, 409);
+    await denied("staff/claims/" + competingId + "/review", sessions.staff, { decision: "approved", note: null, custody_confirmed: true }, 409);
     ensure((await data<Claim>("staff/claims/" + competingId + "/review", sessions.staff, { decision: "rejected", note: "FICTIONAL DEMO competing request" })).status === "rejected", current);
     await denied("staff/claims/" + competingId + "/handover", sessions.staff, {}, 409);
     checks.push(current);

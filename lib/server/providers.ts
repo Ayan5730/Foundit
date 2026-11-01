@@ -33,7 +33,7 @@ export async function assist(config:ProviderConfig,description:string,photoDataU
   if(photoDataUrl && config.OPENAI_API_KEY && config.OPENAI_MODEL){
     try{
       const raw=await post(fetcher,"https://api.openai.com/v1/responses",config.OPENAI_API_KEY,{
-        model:config.OPENAI_MODEL,instructions:instruction,max_output_tokens:800,
+        model:config.OPENAI_MODEL,instructions:instruction,max_output_tokens:800,store:false,
         input:[{role:"user",content:[{type:"input_text",text:description||"Describe the visible item."},{type:"input_image",image_url:photoDataUrl,detail:"low"}]}],
         text:{format:{type:"json_schema",name:"item_attributes",strict:true,schema:jsonSchema}},
       });
@@ -51,7 +51,13 @@ export async function assist(config:ProviderConfig,description:string,photoDataU
         messages:[{role:"system",content:instruction},{role:"user",content:JSON.stringify({description,photo_attributes:suggestions})}],
         response_format:{type:"json_schema",json_schema:{name:"item_attributes",strict:true,schema:jsonSchema}},
       });
-      suggestions=checkedSuggestions(JSON.parse(cerebrasOutput.parse(raw).choices[0].message.content));providers.cerebras="available";
+      const normalized=checkedSuggestions(JSON.parse(cerebrasOutput.parse(raw).choices[0].message.content));
+      suggestions=checkedSuggestions({
+        title:normalized.title??suggestions.title,category:normalized.category??suggestions.category,
+        color:normalized.color??suggestions.color,location:normalized.location??suggestions.location,
+        visible_features:[...new Set([...suggestions.visible_features,...normalized.visible_features])].slice(0,10),
+        follow_up:normalized.follow_up??suggestions.follow_up,
+      });providers.cerebras="available";
     }catch{ /* Retain successful photo suggestions or manual entry. */ }
   }
   return {suggestions,providers};

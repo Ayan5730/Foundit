@@ -48,7 +48,10 @@ export const CreateClaimSchema = z.object({
 export type CreateClaim = z.infer<typeof CreateClaimSchema>;
 export const ReviewSchema = z.object({
   decision: z.enum(["approved","rejected"]), note: optionalText(2000),
-}).strict();
+  custody_confirmed: z.boolean().default(false),
+}).strict().superRefine((value, ctx) => {
+  if (value.decision === "approved" && !value.custody_confirmed) ctx.addIssue({code:"custom",path:["custody_confirmed"],message:"Confirm that the physical item is at the help desk before approving."});
+});
 export const GuidanceRequestSchema = z.object({ organization: z.literal("rapid_metro") }).strict();
 export type Claim = {
   id: string; lost_report_id: string; found_report_id: string; evidence: string;
@@ -57,7 +60,7 @@ export type Claim = {
 export type ClaimSummary = Omit<Claim, "evidence">;
 export type MatchReason = { factor: "category"|"color"|"features"|"location"|"time"; assessment: "supports"|"conflicts"|"unknown"; text: string };
 export type Match = { candidate: PublicReport; score: number; reasons: MatchReason[] };
-export type Matches = { report_id: string; candidates: Match[]; score_label: string };
+export type Matches = { report_id: string; candidates: Match[]; score_label: string; retrieval_complete?: boolean };
 export type Suggestion = {
   title: string | null; category: typeof CATEGORIES[number] | null; color: string | null;
   visible_features: string[]; location: typeof LOCATIONS[number] | null; follow_up: string | null;

@@ -38,8 +38,8 @@ export async function createReport(store:Store,actor:Actor,input:CreateReport) {
   } catch(error) { if(constraint(error)){const result=await replay();if(result)return result;} throw error; }
   return {report:publicReport(await reportRow(store,id)),created:true};
 }
-export async function ownReports(store:Store,actor:Actor) {
-  return (await store.all<ReportRow>("SELECT * FROM reports WHERE owner_id=? ORDER BY created_at DESC LIMIT 100",actor.id)).map(publicReport);
+export async function ownReports(store:Store,actor:Actor,offset=0) {
+  return (await store.all<ReportRow>("SELECT * FROM reports WHERE owner_id=? ORDER BY created_at DESC,id DESC LIMIT 100 OFFSET ?",actor.id,offset)).map(publicReport);
 }
 export async function matchSource(store:Store,actor:Actor,id:string) {
   const row=await reportRow(store,id); requireOwner(row.owner_id,actor); return row;

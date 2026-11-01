@@ -23,7 +23,6 @@ export function ItemVisual({ report, compact = false }: { report: PublicReport; 
     <div className={className}>
       {report.has_shared_preview && !failed ? (
         // The preview endpoint checks the viewer's cookie; an image optimizer cannot fetch it on their behalf.
-        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={"/api/v1/reports/" + encodeURIComponent(report.id) + "/preview"}
           alt={compact ? "" : "Reporter-approved photo preview of " + report.title}
